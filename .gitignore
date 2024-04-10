@@ -1,0 +1,8 @@
+build
+node_modules
+aurelia-webpack/aurelia_example/static
+backbone-grunt/backbone_example/static
+react-babel/react_example/static
+react-webapp/react_webapp/static/
+react-webapp/react_webapp/templates/
+*.pyc
