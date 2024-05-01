@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> OMERO Vitessce</title>
+
+        <!-- Include static css -->
+        <link rel="stylesheet" type="text/css" href="{% static 'omero_vitessce/app.css' %}" />
+									
+		<script type="text/javascript">
+			// Global variables, used by JavaScript code.
+			window.PARAMS = {};
+			PARAMS.EXP_ID = {{ experimenterId }};
+
+            // Render a URL to the /api/v0/ URL for loading JSON data
+			window.PARAMS.API_BASE_URL = "{% api_base' 0 %}";
+		</script>
+	</head>
+		</body>
+			<h1>Welcome to {{cookiecutter.webapp_title}}</h1>
+			<p>
+				Logged in as:
+				<!-- Django template renders values from context -->
+				<strong>{{ firstName }} {{ lastName }}</strong>
+			</p>
+		</body>
+</html>

@@ -3,6 +3,9 @@ OMERO.omero_vitessce
 
 OMERO Vitessce multimodal data viewer.
 
+The app was made from the https://github.com/will-moore/omero-vitessce, but it is looking into expanding: 
+https://github.com/will-moore/omero-vitessce
+
 Installation
 ============
 
@@ -27,9 +30,3 @@ open the index page of this app:
 Now restart your `omero-web` server and go to
 <http://localhost:4080/omero_vitessce/> in your browser.
 
-
-Further Info
-============
-
-1.  This app was derived from [cookiecutter-omero-webapp](https://github.com/ome/cookiecutter-omero-webapp).
-2.  For further info on depolyment, see [Deployment](https://docs.openmicroscopy.org/latest/omero/developers/Web/Deployment.html)

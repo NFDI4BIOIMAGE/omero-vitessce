@@ -20,6 +20,6 @@ from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    # index 'home page' of the app
-    re_path(r"^$", views.index, name="omero_vitessce_index"),
+    # Right panel plugin
+    re_path(r"^$", views.vitessce_panel, name="vitessce_panel")
 ]

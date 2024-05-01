@@ -24,19 +24,13 @@ from omeroweb.decorators import login_required
 # login page. Then back to here, passing in the 'conn' connection
 # and other arguments **kwargs.
 @login_required()
-def index(request, conn=None, **kwargs):
-    # We can load data from OMERO via Blitz Gateway connection.
-    # See https://docs.openmicroscopy.org/latest/omero/developers/Python.html
-    experimenter = conn.getUser()
+def vitessce_panel(request, conn=None, **kwargs):
 
-    # A dictionary of data to pass to the html template
-    context = {
-        "firstName": experimenter.firstName,
-        "lastName": experimenter.lastName,
-        "experimenterId": experimenter.id,
-    }
-    # print can be useful for debugging, but remove in production
-    # print('context', context)
+    # Get all .json attachements and generate links for them
+    config_files = conn.getObjects("FileAnnotation")
+    config_files = ["AAAAA", "BBBBB"] 
+    
+    context = {"json_configs": config_files}
 
     # Render the html template and return the http response
-    return render(request, "omero_vitessce/index.html", context)
+    return render(request, "omero_vitessce/vitessce_panel.html", context)
