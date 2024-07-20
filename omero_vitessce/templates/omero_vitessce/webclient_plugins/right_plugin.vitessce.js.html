@@ -6,7 +6,7 @@ $(document).ready(function() {
     $("#vitessce_tab").omeroweb_right_plugin({
         supported_obj_types: ['project','dataset','image'],
         load_plugin_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
-            var url = '{% url 'vitessce_panel' %}';
+            var url = '{% url 'vitessce_tab' %}' + obj_dtype + '/' + obj_id + '/';
             $(this).load(url);
         }
     });

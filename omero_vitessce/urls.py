@@ -21,5 +21,11 @@ from . import views
 
 urlpatterns = [
     # Right panel plugin
-    re_path(r"^$", views.vitessce_panel, name="vitessce_panel")
+
+    re_path(r"(?P<obj_type>[a-z]+)/(?P<obj_id>[0-9]+)",
+        views.vitessce_panel, name='vitessce_tab'),
+
+    re_path(r"^$", views.vitessce_index, name="vitessce_tab")
+    
+
 ]

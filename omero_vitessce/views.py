@@ -24,13 +24,25 @@ from omeroweb.decorators import login_required
 # login page. Then back to here, passing in the 'conn' connection
 # and other arguments **kwargs.
 @login_required()
-def vitessce_panel(request, conn=None, **kwargs):
+def vitessce_index(request, conn=None, **kwargs):
+    # Render the html template and return the http response
+    return render(request, "omero_vitessce/vitessce_index.html", context)
+
+@login_required()
+def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
+
+    # Generate an openlink space
 
     # Get all .json attachements and generate links for them
-    config_files = conn.getObjects("FileAnnotation")
-    config_files = ["AAAAA", "BBBBB"] 
-    
-    context = {"json_configs": config_files}
+    obj_id = int(obj_id)
+    obj = conn.getObject(obj_type, obj_id)
+    config_files = [i for i in obj.listAnnotations() if i.OMERO_TYPE().NAME == "ome.model.annotations.FileAnnotation_name"]
+    config_urls = [str(i.getId()) for i in config_files if i.getFileName().endswith(".json.txt")]
+    config_files = [i.getFileName() for i in config_files if i.getFileName().endswith(".json.txt")]
+    config_urls = ["https://ADDRESS/webapp/?config=https://ADDRESS/webclient/annotation/" + i for i in config_urls]
+
+    context = {"json_configs": dict(zip(config_files, config_urls)), "obj_type" : obj_type, "obj_id" : obj_id}
 
     # Render the html template and return the http response
     return render(request, "omero_vitessce/vitessce_panel.html", context)
+
