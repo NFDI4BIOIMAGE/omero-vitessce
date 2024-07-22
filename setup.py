@@ -6,4 +6,5 @@ setup(
     description="OMERO Vitessce multimodal data viewer",
     packages=find_packages(),
     keywords=["omero"],
+    include_package_data=True,
 )
