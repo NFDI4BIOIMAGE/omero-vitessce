@@ -26,7 +26,7 @@ from omeroweb.decorators import login_required
 @login_required()
 def vitessce_index(request, conn=None, **kwargs):
     # Render the html template and return the http response
-    return render(request, "omero_vitessce/vitessce_index.html", context)
+    return render(request, "omero_vitessce/index.html")
 
 @login_required()
 def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
@@ -39,7 +39,7 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     config_files = [i for i in obj.listAnnotations() if i.OMERO_TYPE().NAME == "ome.model.annotations.FileAnnotation_name"]
     config_urls = [str(i.getId()) for i in config_files if i.getFileName().endswith(".json.txt")]
     config_files = [i.getFileName() for i in config_files if i.getFileName().endswith(".json.txt")]
-    config_urls = ["https://ADDRESS/webapp/?config=https://ADDRESS/webclient/annotation/" + i for i in config_urls]
+    config_urls = ["http://localhost:4080/omero_vitessce/?config=http://localhost:4080/webclient/annotation/" + i for i in config_urls]
 
     context = {"json_configs": dict(zip(config_files, config_urls)), "obj_type" : obj_type, "obj_id" : obj_id}
 
