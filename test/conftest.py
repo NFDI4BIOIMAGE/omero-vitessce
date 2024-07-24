@@ -12,4 +12,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
 def pytest_configure():
     settings.DEBUG = False
     settings.SERVER_ADDRESS = '"http://localhost:4080"'
-    settings.django.setup()
+    django.setup()
