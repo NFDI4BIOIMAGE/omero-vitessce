@@ -32,6 +32,3 @@ jobs:
           ref: master
       - name: Build and run OMERO tests
         run: .omero/docker $STAGE
-        env: 
-          CONFIG_omero_web_apps: '"omero_vitessce"'
-          CONFIG_omero_web_omero__vitessce_serveraddress: '"http://localhost:4080"'
