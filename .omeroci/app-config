@@ -1,8 +1,6 @@
-#!/bin/bash
-set -e
-set -u
+#!/bin/sh
 
-cat > /opt/omero/web/config/10-mapr.omero <<EOF
+cat > /opt/omero/web/config/10-omero_vitessce.omero <<EOF
 config append omero.web.apps '"omero_vitessce"'
 config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
 config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
