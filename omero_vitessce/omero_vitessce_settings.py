@@ -11,7 +11,8 @@ def str_not_empty(o):
 
 OMEROVITESSCE_SETTINGS_MAPPINGS = {
     'omero.web.omero_vitessce.serveraddress': ['SERVER_ADDRESS',
-                                               None, str_not_empty, None]
+                                               '"http://localhost:4080"',
+                                               str_not_empty, None]
 }
 
 process_custom_settings(sys.modules[__name__],
