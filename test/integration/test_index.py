@@ -54,4 +54,4 @@ class TestLoadIndexPage(IWebTest):
         # asserts we get a 200 response code etc
         rsp = get(django_client, index_url)
         html_str = rsp.content.decode()
-        assert "Welcome" in html_str
+        assert "React App" in html_str
