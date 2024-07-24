@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import django
-import pytest
-
 from django.conf import settings
 
 # We manually designate which settings we will be using in an environment
