@@ -6,23 +6,26 @@ OMERO Vitessce multimodal data viewer.
 Installation
 ============
 
-Install `omero_vitessce` in mode as follows:
+This section assumes that an OMERO.web is already installed.
 
-    # within your python venv:
-    cd omero-vitessce
-    pip install -e .
+Install the app using [pip](https://pip.pypa.io/en/stable/):
+
+NB: You need to ensure that you are running `pip` from the python environment
+where `omero-web` is installed.
+
+    $ pip install -U omero-vitessce
 
 Add the app to the `omero.web.apps` setting:
 
-    omero config append omero.web.apps '"omero_vitessce"'
+    $ omero config append omero.web.apps '"omero_vitessce"'
 
 Add `omero_vitessce` as a tab in the right-hand-side panel:
 
-    omero config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
+    $ omero config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
 
 Add the omero web address (replace ´'"http://localhost:4080"'´ with your address):
 
-    omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
+    $ omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
     
 Now restart OMERO.web as normal for the configuration above to take effect.
 
@@ -38,7 +41,7 @@ Usage
 COMING SOON!
 
 Development
-----------------
+=======================
 
 ## Sources
 
@@ -64,8 +67,8 @@ You can run this project in development mode or as an OMERO.web Django app.
 
 To get started:
 
-    cd vitessce_app
-    npm install
+    $ cd vitessce_app
+    $ npm install
 
 In the project directory, you can run:
 
@@ -86,13 +89,13 @@ html and static files to the Django app in `vitessce app`. See the [deploy_build
 You also need to install the app into your `omero-web` environment:
 
     # cd to the root of the repo
-    pip install -e .
+    $ pip install -e .
 
 You will need to have the app configured in your OMERO.web install:
 
-      omero config append omero.web.apps '"omero_vitessce"'
-      omero config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
-      omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
+    $  omero config append omero.web.apps '"omero_vitessce"'
+    $ omero config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
+    $  omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
 
 It bundles React in production mode and optimizes the build for the best performance.
 
