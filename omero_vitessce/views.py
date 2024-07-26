@@ -16,6 +16,7 @@
 #
 
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 
 from omeroweb.decorators import login_required
 
@@ -37,9 +38,6 @@ def vitessce_index(request, conn=None, **kwargs):
 
 @login_required()
 def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
-
-    # Generate an openlink space
-
     # Get all .json.txt attachements and generate links for them
     # This way the config files can be served as text
     # to the config argument of the vitessce webapp
@@ -60,3 +58,37 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
 
     # Render the html template and return the http response
     return render(request, "omero_vitessce/vitessce_panel.html", context)
+
+
+@login_required()
+def vitessce_open(request, conn=None, **kwargs):
+    # Get the first .json.txt attachement and generate a link for it
+    # This way the config files can be served as text
+    # If no config files are present send to the panel html to ask to make one
+    if request.GET.get("project") is not None:
+        obj_type = "project"
+        obj_id = int(request.GET.get("project"))
+    elif request.GET.get("dataset") is not None:
+        obj_type = "dataset"
+        obj_id = int(request.GET.get("dataset"))
+    elif request.GET.get("image") is not None:
+        obj_type = "image"
+        obj_id = int(request.GET.get("image"))
+    else:
+        context = {"json_configs": dict(),
+                   "obj_type": obj_type, "obj_id": obj_id}
+        return render(request, "omero_vitessce/vitessce_panel.html", context)
+
+    obj = conn.getObject(obj_type, obj_id)
+    files = [i for i in obj.listAnnotations() if i.OMERO_TYPE().NAME ==
+             "ome.model.annotations.FileAnnotation_name"]
+    config_ids = [i.getId() for i in files
+                  if i.getFileName().endswith(".json.txt")]
+    if len(config_ids) > 0:
+        vitessce_url = SERVER + "/omero_vitessce/?config=" + SERVER + \
+            "/webclient/annotation/" + str(config_ids[0])
+        return HttpResponseRedirect(vitessce_url)
+    else:
+        context = {"json_configs": dict(),
+                   "obj_type": obj_type, "obj_id": obj_id}
+        return render(request, "omero_vitessce/vitessce_panel.html", context)
