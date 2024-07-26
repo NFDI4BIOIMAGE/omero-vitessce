@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="omero-vitessce",
-    version="0.1.0",
+    version="0.2.0",
     description="OMERO Vitessce multimodal data viewer plugin for OMERO.web",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
