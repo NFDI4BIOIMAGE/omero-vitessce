@@ -16,17 +16,25 @@ SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
 
 
 def build_viewer_url(config_id):
-    # http://localhost:4080/omero_vitessce/?config=http://localhost:4080/webclient/annotation/999
+    """ Generates urls like:
+    http://localhost:4080/omero_vitessce/?config=http://localhost:4080/webclient/annotation/999
+    """
     return SERVER + "/omero_vitessce/?config=" + SERVER + \
-            "/webclient/annotation/" + str(config_id)
+        "/webclient/annotation/" + str(config_id)
 
 
 def build_zarr_image_url(image_id):
-    # http://localhost:4080/zarr/v0.4/image/99999.zarr/
+    """ Generates urls like:
+    http://localhost:4080/zarr/v0.4/image/99999.zarr/
+    """
     return SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr"
 
 
 def get_attached_configs(obj_type, obj_id, conn):
+    """ Gets all the ".json.txt" files attached to an object
+    and returns a list of file names and a list of urls
+    generated with build_viewer_url
+    """
     obj = conn.getObject(obj_type, obj_id)
     config_files = [i for i in obj.listAnnotations()
                     if i.OMERO_TYPE().NAME ==
@@ -40,7 +48,12 @@ def get_attached_configs(obj_type, obj_id, conn):
 
 
 def create_dataset_config(dataset_id, conn):
-
+    """
+    Generates a Vitessce config for an OMERO dataset and returns it.
+    Assumes all images in the dataset are zarr files
+    which can be served with omero-web-zarr.
+    All images are added to the same view.
+    """
     dataset = conn.getObject("dataset", dataset_id)
     images = [i for i in dataset.listChildren()]
 
@@ -65,6 +78,11 @@ def create_dataset_config(dataset_id, conn):
 
 
 def create_image_config(image_id):
+    """
+    Generates a Vitessce config for an OMERO image and returns it.
+    Assumes the images is a zarr file
+    which can be served with omero-web-zarr.
+    """
     vc = VitessceConfig(schema_version="1.0.6")
     vc_dataset = vc.add_dataset().add_file(
             url=build_zarr_image_url(image_id),
@@ -80,6 +98,11 @@ def create_image_config(image_id):
 
 
 def attach_config(vc, obj_type, obj_id, conn):
+    """
+    Generates a Vitessce config for an OMERO image and returns it.
+    Assumes the images is a zarr file
+    which can be served with omero-web-zarr.
+    """
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
                                      delete=False) as outfile:
         json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
@@ -92,15 +115,17 @@ def attach_config(vc, obj_type, obj_id, conn):
 
 @login_required()
 def vitessce_index(request, conn=None, **kwargs):
-    # Render the basic index page for the app
+    """Render the basic index page for the app
+    """
     return render(request, "omero_vitessce/index.html")
 
 
 @login_required()
 def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
-    # Get all .json.txt attachements and generate links for them
-    # This way the config files can be served as text
-    # to the config argument of the vitessce webapp
+    """Get all .json.txt attachements and generate links for them
+    This way the config files can be served as text
+    to the config argument of the vitessce webapp
+    """
     obj_id = int(obj_id)
 
     config_files, config_urls = get_attached_configs(obj_type, obj_id, conn)
@@ -113,10 +138,10 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
 
 @login_required(setGroupContext=True)
 def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
-    # Get all .json.txt attachements and generate links for them
-    # This way the config files can be served as text
-    # to the config argument of the vitessce webapp
-
+    """Get all .json.txt attachements and generate links for them
+    This way the config files can be served as text
+    to the config argument of the vitessce webapp
+    """
     obj_id = int(obj_id)
     if obj_type == "image":
         vitessce_config = create_image_config(obj_id)
@@ -131,9 +156,10 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
 
 @login_required()
 def vitessce_open(request, conn=None, **kwargs):
-    # Get the first .json.txt attachement and generate a link for it
-    # This way the config files can be served as text
-    # If no config files are present send to the panel html to ask to make one
+    """Get the first .json.txt attachement and generate a link for it
+    This way the config files can be served as text
+    If no config files are present send to the panel html to ask to make one
+    """
     if request.GET.get("project") is not None:
         obj_type = "project"
         obj_id = int(request.GET.get("project"))
