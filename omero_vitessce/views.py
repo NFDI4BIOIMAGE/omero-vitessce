@@ -1,27 +1,67 @@
+import tempfile
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
-from omeroweb.decorators import login_required
+from omeroweb.webclient.decorators import login_required
 
 from . import omero_vitessce_settings
 
-from vitessce import VitessceConfig, ViewType as vt, FileType as ft, CoordinationType as ct
+from vitessce import VitessceConfig
+from vitessce import ViewType as vt, FileType as ft, CoordinationType as ct
 
 # Get the address of omeroweb from the config
 SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
+
+
+def build_viewer_url(config_id):
+    return SERVER + "/omero_vitessce/?config=" + SERVER + \
+            "/webclient/annotation/" + str(config_id)
+
 
 def get_attached_configs(obj_type, obj_id, conn):
     obj = conn.getObject(obj_type, obj_id)
     config_files = [i for i in obj.listAnnotations()
                     if i.OMERO_TYPE().NAME ==
                     "ome.model.annotations.FileAnnotation_name"]
-    config_urls = [str(i.getId()) for i in config_files
+    config_urls = [i.getId() for i in config_files
                    if i.getFileName().endswith(".json.txt")]
     config_files = [i.getFileName() for i in config_files
                     if i.getFileName().endswith(".json.txt")]
-    config_urls = [SERVER + "/omero_vitessce/?config=" + SERVER
-                   + "/webclient/annotation/" + i for i in config_urls]
+    config_urls = [build_viewer_url(i) for i in config_urls]
     return config_files, config_urls
+
+
+def create_dataset_config(dataset_id):
+    # TO DO
+    pass
+
+
+def create_image_config(image_id):
+    vc = VitessceConfig(schema_version="1.0.6")
+    vc_dataset = vc.add_dataset().add_file(
+            url=SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr",
+            file_type=ft.IMAGE_OME_ZARR)
+    vc.add_view(vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
+    vc.add_view(vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+    vc.add_coordination_by_dict({
+        ct.SPATIAL_ZOOM: 2,
+        ct.SPATIAL_TARGET_X: 0,
+        ct.SPATIAL_TARGET_Y: 0,
+    })
+    return vc
+
+
+def attach_config(vc, obj_id, obj_type, conn):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
+                                     delete=False) as outfile:
+        json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
+    file_ann = conn.createFileAnnfromLocalFile(
+                outfile.name, mimetype="text/plain")
+    obj = conn.getObject(obj_type, obj_id)
+    obj.linkAnnotation(file_ann)
+    return file_ann.getId()
 
 
 @login_required()
@@ -42,8 +82,35 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     context = {"json_configs": dict(zip(config_files, config_urls)),
                "obj_type": obj_type, "obj_id": obj_id}
 
-    # Render the html template and return the http response
     return render(request, "omero_vitessce/vitessce_panel.html", context)
+
+
+@login_required(setGroupContext=True)
+def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
+    # Get all .json.txt attachements and generate links for them
+    # This way the config files can be served as text
+    # to the config argument of the vitessce webapp
+
+    obj_id = int(obj_id)
+    if obj_type == "image":
+        vitessce_config = create_image_config(obj_id)
+    if obj_type == "dataset":
+        vitessce_config = create_dataset_config(obj_id)
+
+    # config_id=attach_config(vitessce_config, obj_type, obj_id, conn)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
+                                     delete=False) as outfile:
+        json.dump(vitessce_config.to_dict(),
+                  outfile, indent=4, sort_keys=False)
+    file_ann = conn.createFileAnnfromLocalFile(
+                outfile.name, mimetype="text/plain")
+    obj = conn.getObject(obj_type, obj_id)
+    obj.linkAnnotation(file_ann)
+    config_id = file_ann.getId()
+
+    viewer_url = build_viewer_url(config_id)
+
+    return HttpResponseRedirect(viewer_url)
 
 
 @login_required()
