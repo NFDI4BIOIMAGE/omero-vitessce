@@ -8,7 +8,7 @@ from omeroweb.webclient.decorators import login_required
 
 from . import omero_vitessce_settings
 
-from vitessce import VitessceConfig
+from vitessce import VitessceConfig, OmeZarrWrapper, MultiImageWrapper
 from vitessce import ViewType as vt, FileType as ft, CoordinationType as ct
 
 # Get the address of omeroweb from the config
@@ -16,8 +16,14 @@ SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
 
 
 def build_viewer_url(config_id):
+    # http://localhost:4080/omero_vitessce/?config=http://localhost:4080/webclient/annotation/999
     return SERVER + "/omero_vitessce/?config=" + SERVER + \
             "/webclient/annotation/" + str(config_id)
+
+
+def build_zarr_image_url(image_id):
+    # http://localhost:4080/zarr/v0.4/image/99999.zarr/
+    return SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr"
 
 
 def get_attached_configs(obj_type, obj_id, conn):
@@ -33,15 +39,35 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
-def create_dataset_config(dataset_id):
-    # TO DO
-    pass
+def create_dataset_config(dataset_id, conn):
+
+    dataset = conn.getObject("dataset", dataset_id)
+    images = [i for i in dataset.listChildren()]
+
+    vc = VitessceConfig(schema_version="1.0.6")
+    vc_dataset = vc.add_dataset()
+    wrappers = []
+    for img in images:
+        wrapper = OmeZarrWrapper(
+                    img_url=build_zarr_image_url(img.getId()),
+                    name=img.getName())
+        wrappers.append(wrapper)
+    vc_dataset.add_object(MultiImageWrapper(image_wrappers=wrappers,
+                                            use_physical_size_scaling=True))
+    vc.add_view(vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
+    vc.add_view(vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+    vc.add_coordination_by_dict({
+        ct.SPATIAL_ZOOM: 2,
+        ct.SPATIAL_TARGET_X: 0,
+        ct.SPATIAL_TARGET_Y: 0,
+    })
+    return vc
 
 
 def create_image_config(image_id):
     vc = VitessceConfig(schema_version="1.0.6")
     vc_dataset = vc.add_dataset().add_file(
-            url=SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr",
+            url=build_zarr_image_url(image_id),
             file_type=ft.IMAGE_OME_ZARR)
     vc.add_view(vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
     vc.add_view(vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
@@ -53,7 +79,7 @@ def create_image_config(image_id):
     return vc
 
 
-def attach_config(vc, obj_id, obj_type, conn):
+def attach_config(vc, obj_type, obj_id, conn):
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
                                      delete=False) as outfile:
         json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
@@ -95,19 +121,9 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
     if obj_type == "image":
         vitessce_config = create_image_config(obj_id)
     if obj_type == "dataset":
-        vitessce_config = create_dataset_config(obj_id)
+        vitessce_config = create_dataset_config(obj_id, conn)
 
-    # config_id=attach_config(vitessce_config, obj_type, obj_id, conn)
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
-                                     delete=False) as outfile:
-        json.dump(vitessce_config.to_dict(),
-                  outfile, indent=4, sort_keys=False)
-    file_ann = conn.createFileAnnfromLocalFile(
-                outfile.name, mimetype="text/plain")
-    obj = conn.getObject(obj_type, obj_id)
-    obj.linkAnnotation(file_ann)
-    config_id = file_ann.getId()
-
+    config_id = attach_config(vitessce_config, obj_type, obj_id, conn)
     viewer_url = build_viewer_url(config_id)
 
     return HttpResponseRedirect(viewer_url)
