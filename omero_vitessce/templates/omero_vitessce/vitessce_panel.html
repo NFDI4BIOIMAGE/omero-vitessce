@@ -7,7 +7,7 @@
 		</body>
 			{% if json_configs %}
 				<div class="right_tab_inner">
-					<p>Please select a config file or clic "Auto" to autogenerate one.</p>
+					<p>Please select an attached config file from the list below:</p>
 					{% for file, url in json_configs.items%}
 						<a href={{url}} target="_blank"> {{file}}</a>
 					{% endfor %}
