@@ -93,7 +93,7 @@ For how to create a custom config file see:
 Images and data can be served through:
 - [omero-web-zarr](https://pypi.org/project/omero-web-zarr/):  OME-NGFF images only.
 - [omero-openlink](https://github.com/sukunis/OMERO.openlink): all images and file attachements.
-- ´webclient/annotation/´ endpoint: only for Annotations (useful for file attachments).
+- `webclient/annotation/` endpoint: only for Annotations (useful for file attachments).
 
 Development
 =======================
