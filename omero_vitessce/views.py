@@ -160,10 +160,7 @@ def vitessce_open(request, conn=None, **kwargs):
     This way the config files can be served as text
     If no config files are present send to the panel html to ask to make one
     """
-    if request.GET.get("project") is not None:
-        obj_type = "project"
-        obj_id = int(request.GET.get("project"))
-    elif request.GET.get("dataset") is not None:
+    if request.GET.get("dataset") is not None:
         obj_type = "dataset"
         obj_id = int(request.GET.get("dataset"))
     elif request.GET.get("image") is not None:
