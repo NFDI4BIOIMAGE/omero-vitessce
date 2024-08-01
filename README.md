@@ -23,6 +23,10 @@ Add `omero_vitessce` as a tab in the right-hand-side panel:
 
     $ omero config append omero.web.ui.right_plugins '["Vitessce", "omero_vitessce/webclient_plugins/right_plugin.vitessce.js.html", "vitessce_tab"]'
 
+Add `omero_vitessce` as an open-with option:
+
+    omero config append omero.web.open_with '["omero_vitessce", "open_vitessce", {"supported_objects": ["project", "dataset", "image"], "label": "Vitessce"}]'
+
 Add the omero web address (replace ´'"http://localhost:4080"'´ with your address):
 
     $ omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
@@ -33,12 +37,12 @@ Usage
 ============
 ### Right-hand-side panel:
 - Prexisting config files
-- Autogenerating config file:
+- Autogenerating config file: COMING SOON!
 
   
 ### Open-with:
-
-COMING SOON!
+Right click on `projects`, `datasets` or `images` in the left-panel and select `open-witch` -> `Vitessce`.  
+This will open the vitessce viewer in a new tab using the first configuration file attachement.
 
 Development
 =======================
