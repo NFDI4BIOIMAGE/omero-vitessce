@@ -12,6 +12,7 @@ setup(
     url="https://github.com/MicheleBortol/omero-vitessce",
     python_requires='>=3.9',
     packages=find_packages(),
+    install_requires=["vitessce==3.3.0"],
     keywords=["OMERO.web", "OMERO", "Vitessce", "viewer"],
     include_package_data=True,
 )
