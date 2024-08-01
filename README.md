@@ -85,8 +85,9 @@ available to serve the images.
 Custom config files should have a `.json.txt` extension and added as attachements to a dataset or an image.
 The configuration files does not need to refer to the dataset / image it is attached to and can refer to other images.
 
-
-[examples](http://vitessce.io/examples/)
+For how to create a custom config file see:
+- [VItessce Docs](http://vitessce.io/docs/view-config-json/)
+- [Vitessce Examples](http://vitessce.io/examples/)
 
 #### Serving the images / data /metadata
 Images and data can be served through:
