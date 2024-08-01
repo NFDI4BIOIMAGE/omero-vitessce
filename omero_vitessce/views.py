@@ -9,7 +9,7 @@ from omeroweb.webclient.decorators import login_required
 from . import omero_vitessce_settings
 
 from vitessce import VitessceConfig, OmeZarrWrapper, MultiImageWrapper
-from vitessce import ViewType as vt, FileType as ft, CoordinationType as ct
+from vitessce import ViewType as Vt, FileType as Ft, CoordinationType as Ct
 
 # Get the address of omeroweb from the config
 SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
@@ -62,17 +62,17 @@ def create_dataset_config(dataset_id, conn):
     wrappers = []
     for img in images:
         wrapper = OmeZarrWrapper(
-                    img_url=build_zarr_image_url(img.getId()),
-                    name=img.getName())
+            img_url=build_zarr_image_url(img.getId()),
+            name=img.getName())
         wrappers.append(wrapper)
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=wrappers,
                                             use_physical_size_scaling=True))
-    vc.add_view(vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
-    vc.add_view(vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+    vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
+    vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
     vc.add_coordination_by_dict({
-        ct.SPATIAL_ZOOM: 2,
-        ct.SPATIAL_TARGET_X: 0,
-        ct.SPATIAL_TARGET_Y: 0,
+        Ct.SPATIAL_ZOOM: 2,
+        Ct.SPATIAL_TARGET_X: 0,
+        Ct.SPATIAL_TARGET_Y: 0,
     })
     return vc
 
@@ -85,14 +85,14 @@ def create_image_config(image_id):
     """
     vc = VitessceConfig(schema_version="1.0.6")
     vc_dataset = vc.add_dataset().add_file(
-            url=build_zarr_image_url(image_id),
-            file_type=ft.IMAGE_OME_ZARR)
-    vc.add_view(vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
-    vc.add_view(vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+        url=build_zarr_image_url(image_id),
+        file_type=Ft.IMAGE_OME_ZARR)
+    vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
+    vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
     vc.add_coordination_by_dict({
-        ct.SPATIAL_ZOOM: 2,
-        ct.SPATIAL_TARGET_X: 0,
-        ct.SPATIAL_TARGET_Y: 0,
+        Ct.SPATIAL_ZOOM: 2,
+        Ct.SPATIAL_TARGET_X: 0,
+        Ct.SPATIAL_TARGET_Y: 0,
     })
     return vc
 
@@ -107,7 +107,7 @@ def attach_config(vc, obj_type, obj_id, conn):
                                      delete=False) as outfile:
         json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
     file_ann = conn.createFileAnnfromLocalFile(
-                outfile.name, mimetype="text/plain")
+        outfile.name, mimetype="text/plain")
     obj = conn.getObject(obj_type, obj_id)
     obj.linkAnnotation(file_ann)
     return file_ann.getId()
