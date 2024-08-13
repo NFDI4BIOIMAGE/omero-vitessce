@@ -8,18 +8,22 @@
 			{% if json_configs %}
 				<div class="right_tab_inner">
 					<p>Please select an attached config file from the list below:</p>
+					<ul>
 					{% for file, url in json_configs.items%}
-						<a href={{url}} target="_blank"> {{file}}</a>
+						<li><a href={{url}} target="_blank"> {{file}}</a></li>
 					{% endfor %}
+					 </ul> 
 				</div>
 			{% else %}
 				<div class="right_tab_inner">
 					<p> There are no config files attached! </p>
 					<p> Either attach a config file or click below to autogenerate one:</p>
-					<button type="button">
-						<a href="{% url 'generate_config' %}/{{obj_type}}/{{obj_id}}";>Generate Config File</a>
-					</button>
 
+					<form action='/omero_vitessce/generate_config/{{obj_type}}/{{obj_id}}' method="post">
+						{% csrf_token %}
+						{{ form }}
+						<input type = "submit" value = "Generate Config"> 
+					</form>
 				</div>
 			{% endif %}
 		</body>

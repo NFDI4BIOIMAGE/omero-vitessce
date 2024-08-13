@@ -7,12 +7,39 @@ from django.http import HttpResponseRedirect
 from omeroweb.webclient.decorators import login_required
 
 from . import omero_vitessce_settings
+from .forms import ConfigForm
 
 from vitessce import VitessceConfig, OmeZarrWrapper, MultiImageWrapper
 from vitessce import ViewType as Vt, FileType as Ft, CoordinationType as Ct
 
 # Get the address of omeroweb from the config
 SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
+
+
+def get_files_images(obj_type, obj_id, conn):
+    """ Gets all the files attached to an object,
+    and images if the object is a dataset,
+    and returns a list of file names and a list of urls
+    for the files and eventually the images
+    """
+    obj = conn.getObject(obj_type, obj_id)
+    file_names = [
+            i for i in obj.listAnnotations()
+            if i.OMERO_TYPE().NAME ==
+            "ome.model.annotations.FileAnnotation_name"]
+    file_urls = [i.getId() for i in file_names]
+    file_names = [i.getFileName() for i in file_names]
+    file_urls = [SERVER + "/webclient/annotation/" + str(i) for i in file_urls]
+
+    if obj_type == "dataset":
+        imgs = list(obj.listChildren())
+        img_urls = [build_zarr_image_url(i.getId()) for i in imgs]
+        img_names = [i.getName() for i in imgs]
+    else:
+        img_urls = [build_zarr_image_url(obj_id)]
+        img_names = [obj.getName()]
+
+    return file_names, file_urls, img_names, img_urls
 
 
 def build_viewer_url(config_id):
@@ -47,28 +74,48 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
-def create_dataset_config(dataset_id, conn):
+def create_dataset_config(dataset_id, config_args):
     """
     Generates a Vitessce config for an OMERO dataset and returns it.
     Assumes all images in the dataset are zarr files
     which can be served with omero-web-zarr.
     All images are added to the same view.
     """
-    dataset = conn.getObject("dataset", dataset_id)
-    images = [i for i in dataset.listChildren()]
-
     vc = VitessceConfig(schema_version="1.0.6")
     vc_dataset = vc.add_dataset()
-    wrappers = []
-    for img in images:
-        wrapper = OmeZarrWrapper(
-            img_url=build_zarr_image_url(img.getId()),
-            name=img.getName())
-        wrappers.append(wrapper)
-    vc_dataset.add_object(MultiImageWrapper(image_wrappers=wrappers,
+
+    img_url = config_args.get("image")
+
+    images = [OmeZarrWrapper(img_url=img_url, name="Image")]
+
+    vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=8, h=10)
+    vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=8, y=0, w=2, h=10)
+
+    if config_args.get("cell identities"):
+        vc_dataset = vc_dataset.add_file(
+            url=config_args.get("cell identities"),
+            file_type=Ft.OBS_SETS_CSV,
+            coordination_values={"obsType": "cell"},
+            options={
+                "obsIndex": "cell_id",
+                "obsSets": [
+                    {"name": "Clustering", "column": "graphclust"}]})
+        vc.add_view(Vt.OBS_SETS, dataset=vc_dataset, x=10, y=5, w=2, h=5)
+    if config_args.get("expression"):
+        vc_dataset = vc_dataset.add_file(
+            url=config_args.get("expression"),
+            file_type=Ft.OBS_FEATURE_MATRIX_CSV)
+        vc.add_view(Vt.FEATURE_LIST, dataset=vc_dataset, x=10, y=0, w=2, h=5)
+    if config_args.get("segmentation"):
+        segmentation = OmeZarrWrapper(
+                img_url=config_args.get("segmentation"),
+                name="Segmentation",
+                is_bitmask=True)
+        images.append(segmentation)
+
+    vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
-    vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
-    vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+
     vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
@@ -77,7 +124,7 @@ def create_dataset_config(dataset_id, conn):
     return vc
 
 
-def create_image_config(image_id):
+def create_image_config(image_id, config_args):
     """
     Generates a Vitessce config for an OMERO image and returns it.
     Assumes the images is an OME-NGFF v0.4 file
@@ -87,8 +134,10 @@ def create_image_config(image_id):
     vc_dataset = vc.add_dataset().add_file(
         url=build_zarr_image_url(image_id),
         file_type=Ft.IMAGE_OME_ZARR)
+
     vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
     vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
+
     vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
@@ -133,6 +182,12 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     context = {"json_configs": dict(zip(config_files, config_urls)),
                "obj_type": obj_type, "obj_id": obj_id}
 
+    if not config_files:
+        files, urls, img_files, img_urls = get_files_images(
+                obj_type, obj_id, conn)
+        form = ConfigForm(files, urls, img_files, img_urls)
+        context["form"] = form
+
     return render(request, "omero_vitessce/vitessce_panel.html", context)
 
 
@@ -142,11 +197,12 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
     write it to a temporarily file and attach it. Then open the
     viewer with the autogenerated config.
     """
+
     obj_id = int(obj_id)
     if obj_type == "image":
-        vitessce_config = create_image_config(obj_id)
+        vitessce_config = create_image_config(obj_id, request.POST)
     if obj_type == "dataset":
-        vitessce_config = create_dataset_config(obj_id, conn)
+        vitessce_config = create_dataset_config(obj_id, request.POST)
 
     config_id = attach_config(vitessce_config, obj_type, obj_id, conn)
     viewer_url = build_viewer_url(config_id)
