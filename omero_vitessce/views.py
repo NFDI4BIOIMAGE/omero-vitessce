@@ -74,12 +74,10 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
-def create_dataset_config(dataset_id, config_args):
+def create_config(dataset_id, config_args):
     """
-    Generates a Vitessce config for an OMERO dataset and returns it.
-    Assumes all images in the dataset are zarr files
-    which can be served with omero-web-zarr.
-    All images are added to the same view.
+    Generates a Vitessce config and returns it,
+    the results from the form are used as args.
     """
     vc = VitessceConfig(schema_version="1.0.6")
     vc_dataset = vc.add_dataset()
@@ -119,30 +117,9 @@ def create_dataset_config(dataset_id, config_args):
     vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
-        Ct.SPATIAL_TARGET_Y: 0,
+        Ct.SPATIAL_TARGET_Y: 0
     })
-    return vc
 
-
-def create_image_config(image_id, config_args):
-    """
-    Generates a Vitessce config for an OMERO image and returns it.
-    Assumes the images is an OME-NGFF v0.4 file
-    which can be served with omero-web-zarr.
-    """
-    vc = VitessceConfig(schema_version="1.0.6")
-    vc_dataset = vc.add_dataset().add_file(
-        url=build_zarr_image_url(image_id),
-        file_type=Ft.IMAGE_OME_ZARR)
-
-    vc.add_view(Vt.SPATIAL, dataset=vc_dataset, x=0, y=0, w=10, h=10)
-    vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset, x=10, y=0, w=2, h=10)
-
-    vc.add_coordination_by_dict({
-        Ct.SPATIAL_ZOOM: 2,
-        Ct.SPATIAL_TARGET_X: 0,
-        Ct.SPATIAL_TARGET_Y: 0,
-    })
     return vc
 
 
@@ -199,10 +176,7 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
     """
 
     obj_id = int(obj_id)
-    if obj_type == "image":
-        vitessce_config = create_image_config(obj_id, request.POST)
-    if obj_type == "dataset":
-        vitessce_config = create_dataset_config(obj_id, request.POST)
+    vitessce_config = create_config(obj_id, request.POST)
 
     config_id = attach_config(vitessce_config, obj_type, obj_id, conn)
     viewer_url = build_viewer_url(config_id)
