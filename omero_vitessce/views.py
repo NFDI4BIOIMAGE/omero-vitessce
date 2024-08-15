@@ -1,10 +1,11 @@
-import tempfile
 import json
+from pathlib import Path
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
 from omeroweb.webclient.decorators import login_required
+from omero.util.temp_files import create_path
 
 from . import omero_vitessce_settings
 from .forms import ConfigForm
@@ -124,17 +125,23 @@ def create_config(dataset_id, config_args):
     return vc
 
 
-def attach_config(vc, obj_type, obj_id, conn):
+def attach_config(vc, obj_type, obj_id, filename, conn):
     """
     Generates a Vitessce config for an OMERO image and returns it.
     Assumes the images is an OME NGFF v0.4 file
     which can be served with omero-web-zarr.
     """
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".json.txt",
-                                     delete=False) as outfile:
+    config_path = create_path("omero-vitessce", ".tmp", folder=True)
+    if not filename.endswith(".json.txt"):
+        filename = filename + ".json.txt"
+    filename = Path(filename).name  # Sanitize filename
+
+    config_path = Path(config_path).joinpath(filename)
+    with open(config_path, "w") as outfile:
         json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
+
     file_ann = conn.createFileAnnfromLocalFile(
-        outfile.name, mimetype="text/plain")
+        config_path, mimetype="text/plain")
     obj = conn.getObject(obj_type, obj_id)
     obj.linkAnnotation(file_ann)
     return file_ann.getId()
@@ -178,7 +185,9 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
     obj_id = int(obj_id)
     vitessce_config = create_config(obj_id, request.POST)
 
-    config_id = attach_config(vitessce_config, obj_type, obj_id, conn)
+    config_filename = request.POST.get("config file name")
+    config_id = attach_config(vitessce_config, obj_type,
+                              obj_id, config_filename, conn)
     viewer_url = build_viewer_url(config_id)
 
     return HttpResponseRedirect(viewer_url)

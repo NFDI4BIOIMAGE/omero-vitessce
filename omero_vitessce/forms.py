@@ -1,3 +1,5 @@
+import datetime
+
 from django import forms
 
 
@@ -19,6 +21,12 @@ class ConfigForm(forms.Form):
         # For other fields it is OK not to have an image
         self.image_choices.insert(0, ('', '---'))
 
+        ts = datetime.datetime.now().strftime("%Y.%m.%d_%H%M%S")
+        filename = "VitessceConfig-" + ts + ".json.txt"
+
+        self.fields["config file name"] = forms.CharField(
+                empty_value=filename, strip=True,
+                min_length=1, max_length=40, required=False)
         self.fields["segmentation"] = forms.ChoiceField(
                 choices=self.image_choices, required=False)
         self.fields["cell identities"] = forms.ChoiceField(
@@ -34,3 +42,4 @@ class ConfigForm(forms.Form):
 
         self.fields["cell id column"].initial = "cell_id"
         self.fields["label column"].initial = "label"
+        self.fields["config file name"].initial = filename
