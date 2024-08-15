@@ -95,9 +95,10 @@ def create_config(dataset_id, config_args):
             file_type=Ft.OBS_SETS_CSV,
             coordination_values={"obsType": "cell"},
             options={
-                "obsIndex": "cell_id",
+                "obsIndex": config_args.get("cell id column"),
                 "obsSets": [
-                    {"name": "Clustering", "column": "graphclust"}]})
+                    {"name": "Clustering",
+                     "column": config_args.get("label column")}]})
         vc.add_view(Vt.OBS_SETS, dataset=vc_dataset, x=10, y=5, w=2, h=5)
     if config_args.get("expression"):
         vc_dataset = vc_dataset.add_file(
@@ -159,11 +160,10 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     context = {"json_configs": dict(zip(config_files, config_urls)),
                "obj_type": obj_type, "obj_id": obj_id}
 
-    if not config_files:
-        files, urls, img_files, img_urls = get_files_images(
-                obj_type, obj_id, conn)
-        form = ConfigForm(files, urls, img_files, img_urls)
-        context["form"] = form
+    files, urls, img_files, img_urls = get_files_images(
+            obj_type, obj_id, conn)
+    form = ConfigForm(files, urls, img_files, img_urls)
+    context["form"] = form
 
     return render(request, "omero_vitessce/vitessce_panel.html", context)
 

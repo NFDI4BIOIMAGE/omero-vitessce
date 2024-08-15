@@ -23,5 +23,14 @@ class ConfigForm(forms.Form):
                 choices=self.image_choices, required=False)
         self.fields["cell identities"] = forms.ChoiceField(
                 choices=self.text_choices, required=False)
+        self.fields["cell id column"] = forms.CharField(
+                empty_value="cell_id", strip=True,
+                min_length=1, max_length=20, required=False)
+        self.fields["label column"] = forms.CharField(
+                empty_value="label", strip=True,
+                min_length=1, max_length=20, required=False)
         self.fields["expression"] = forms.ChoiceField(
                 choices=self.text_choices, required=False)
+
+        self.fields["cell id column"].initial = "cell_id"
+        self.fields["label column"].initial = "label"
