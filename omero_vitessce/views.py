@@ -19,7 +19,7 @@ SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
 
 
 def get_files_images(obj_type, obj_id, conn):
-    """ Gets all the files attached to an object,
+    """ Gets all the non config files attached to an object,
     and images if the object is a dataset,
     and returns a list of file names and a list of urls
     for the files and eventually the images
@@ -29,6 +29,8 @@ def get_files_images(obj_type, obj_id, conn):
             i for i in obj.listAnnotations()
             if i.OMERO_TYPE().NAME ==
             "ome.model.annotations.FileAnnotation_name"]
+    file_names = [i for i in file_names
+                  if not i.getFileName().endswith(".json.txt")]
     file_urls = [i.getId() for i in file_names]
     file_names = [i.getFileName() for i in file_names]
     file_urls = [SERVER + "/webclient/annotation/" + str(i) for i in file_urls]
@@ -128,6 +130,10 @@ def create_config(dataset_id, config_args):
         sc = vc.add_view(Vt.SCATTERPLOT, dataset=vc_dataset)
         displays.append(sc)
 
+    if config_args.get("expression") and config_args.get("cell identities"):
+        hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
+        displays.append(hm)
+
     if config_args.get("segmentation"):
         segmentation = OmeZarrWrapper(
                 img_url=config_args.get("segmentation"),
@@ -138,7 +144,7 @@ def create_config(dataset_id, config_args):
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
 
-    displays = hconcat(*displays)
+    displays = vconcat(*displays)
     controllers = vconcat(*controllers)
     vc.layout(hconcat(controllers, displays))
 
