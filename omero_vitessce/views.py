@@ -30,7 +30,7 @@ def get_files_images(obj_type, obj_id, conn):
             if i.OMERO_TYPE().NAME ==
             "ome.model.annotations.FileAnnotation_name"]
     file_names = [i for i in file_names
-                  if not i.getFileName().endswith(".json.txt")]
+                  if i.getFileName().endswith(".csv")]
     file_urls = [i.getId() for i in file_names]
     file_names = [i.getFileName() for i in file_names]
     file_urls = [SERVER + "/webclient/annotation/" + str(i) for i in file_urls]
