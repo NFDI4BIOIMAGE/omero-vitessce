@@ -100,6 +100,7 @@ Development
 ## Sources
 
 The main sources are:
+- omero-vitessce from Will Moore: https://github.com/will-moore/omero-vitessce
 - cookiecutter-omero-webapp: https://github.com/ome/cookiecutter-omero-webapp
 - `react_webapp` from omero-web-apps-examples: https://github.com/ome/omero-web-apps-examples/tree/master/react-webapp
 - Vitessce python package used for generating config files http://python-docs.vitessce.io/
