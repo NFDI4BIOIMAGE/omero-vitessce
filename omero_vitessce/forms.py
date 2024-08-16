@@ -43,8 +43,18 @@ class ConfigForm(forms.Form):
                 min_length=1, max_length=20, required=False)
         self.fields["expression"] = forms.ChoiceField(
                 choices=self.text_choices, required=False)
+        self.fields["embeddings"] = forms.ChoiceField(
+                choices=self.text_choices, required=False)
+        self.fields["embedding x"] = forms.CharField(
+                empty_value="UMAP_1", strip=True,
+                min_length=1, max_length=20, required=False)
+        self.fields["embedding y"] = forms.CharField(
+                empty_value="UMAP_2", strip=True,
+                min_length=1, max_length=20, required=False)
 
         # Set default values for CharField fields
+        self.fields["config file name"].initial = filename
         self.fields["cell id column"].initial = "cell_id"
         self.fields["label column"].initial = "label"
-        self.fields["config file name"].initial = filename
+        self.fields["embedding x"].initial = "UMAP_1"
+        self.fields["embedding y"].initial = "UMAP_2"
