@@ -95,6 +95,7 @@ def create_config(dataset_id, config_args):
 
     displays = [sp]
     controllers = [lc]
+    hists = []
 
     if config_args.get("cell identities"):
         vc_dataset = vc_dataset.add_file(
@@ -132,6 +133,13 @@ def create_config(dataset_id, config_args):
 
     if config_args.get("expression") and config_args.get("cell identities"):
         hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
+        fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
+        oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
+        fd = vc.add_view(Vt.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+                         dataset=vc_dataset)
+        hists.append(fh)
+        hists.append(oh)
+        hists.append(fd)
         displays.append(hm)
 
     if config_args.get("segmentation"):
@@ -144,9 +152,12 @@ def create_config(dataset_id, config_args):
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
 
-    displays = vconcat(*displays)
-    controllers = vconcat(*controllers)
-    vc.layout(hconcat(controllers, displays))
+    displays = hconcat(*displays)
+    controllers = hconcat(*controllers)
+    if hists:
+        hists = hconcat(*hists)
+        controllers = hconcat(controllers, hists)
+    vc.layout(vconcat(displays, controllers))
 
     vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
