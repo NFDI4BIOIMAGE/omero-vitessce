@@ -58,6 +58,11 @@ class ConfigForm(forms.Form):
                 empty_value=ConfigForm.default_embedding_y_col, strip=True,
                 min_length=1, max_length=20, required=False)
 
+        self.fields["histograms"] = forms.BooleanField(initial=True,
+                                                       required=False)
+        self.fields["heatmap"] = forms.BooleanField(initial=True,
+                                                    required=False)
+
         # Set default values for CharField fields
         self.fields["config file name"].initial = filename
         self.fields["cell id column"].initial = ConfigForm.default_cell_id_col

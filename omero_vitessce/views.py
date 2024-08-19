@@ -132,15 +132,17 @@ def create_config(dataset_id, config_args):
         displays.append(sc)
 
     if config_args.get("expression") and config_args.get("cell identities"):
-        hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
-        fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
-        oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
-        fd = vc.add_view(Vt.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
-                         dataset=vc_dataset)
-        hists.append(fh)
-        hists.append(oh)
-        hists.append(fd)
-        displays.append(hm)
+        if config_args.get("histograms"):
+            fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
+            oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
+            fd = vc.add_view(Vt.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+                             dataset=vc_dataset)
+            hists.append(fh)
+            hists.append(oh)
+            hists.append(fd)
+        if config_args.get("heatmap"):
+            hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
+            displays.append(hm)
 
     if config_args.get("segmentation"):
         segmentation = OmeZarrWrapper(
