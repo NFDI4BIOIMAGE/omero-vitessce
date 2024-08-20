@@ -62,7 +62,7 @@ def build_zarr_image_url(image_id):
 
 
 def get_attached_configs(obj_type, obj_id, conn):
-    """ Gets all the ".json.txt" files attached to an object
+    """ Gets all the ".json" files attached to an object
     and returns a list of file names and a list of urls
     generated with build_viewer_url
     """
@@ -71,9 +71,9 @@ def get_attached_configs(obj_type, obj_id, conn):
                     if i.OMERO_TYPE().NAME ==
                     "ome.model.annotations.FileAnnotation_name"]
     config_urls = [i.getId() for i in config_files
-                   if i.getFileName().endswith(".json.txt")]
+                   if i.getFileName().endswith(".json")]
     config_files = [i.getFileName() for i in config_files
-                    if i.getFileName().endswith(".json.txt")]
+                    if i.getFileName().endswith(".json")]
     config_urls = [build_viewer_url(i) for i in config_urls]
     return config_files, config_urls
 
@@ -177,8 +177,8 @@ def attach_config(vc, obj_type, obj_id, filename, conn):
     which can be served with omero-web-zarr.
     """
     config_path = create_path("omero-vitessce", ".tmp", folder=True)
-    if not filename.endswith(".json.txt"):
-        filename = filename + ".json.txt"
+    if not filename.endswith(".json"):
+        filename = filename + ".json"
     filename = Path(filename).name  # Sanitize filename
 
     config_path = Path(config_path).joinpath(filename)
@@ -201,7 +201,7 @@ def vitessce_index(request, conn=None, **kwargs):
 
 @login_required()
 def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
-    """Get all .json.txt attachements and generate links for them
+    """Get all .json attachements and generate links for them
     This way the config files can be served as text
     to the config argument of the vitessce webapp
     """
@@ -239,7 +239,7 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
 
 @login_required()
 def vitessce_open(request, conn=None, **kwargs):
-    """Get the first .json.txt attachement and generate a link for it
+    """Get the first .json attachement and generate a link for it
     This way the config files can be served as text
     If no config files are present send to the panel html to ask to make one
     """

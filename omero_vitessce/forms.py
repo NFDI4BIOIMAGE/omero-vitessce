@@ -72,10 +72,10 @@ class ConfigForm(forms.Form):
 
     def make_config_file_name(self):
         """ Creates the default config file name with a timestamp:
-        VitessceConfig-yyyy.mm.dd_hhmmss.json.txt
+        VitessceConfig-yyyy.mm.dd_hhmmss.json
         """
         ts = datetime.datetime.now().strftime("%Y.%m.%d_%H%M%S")
-        filename = "VitessceConfig-" + ts + ".json.txt"
+        filename = "VitessceConfig-" + ts + ".json"
         return filename
 
     def prepare_choices(self, file_names, file_urls, img_names, img_urls):
