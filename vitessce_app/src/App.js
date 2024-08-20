@@ -10,10 +10,10 @@ export default function App() {
 	   const request = new XMLHttpRequest();	
 	   request.open('GET', url, false);
 	   request.send()	  
-	   return JSON.parse(request.responseText) 
+	   const response = request.response
+	   return JSON.parse(response) 
 	}
 	const fetchedConfig = fetchData(viewConfig);
-	console.log(fetchedConfig)
 	
 	return (
 		<Vitessce
