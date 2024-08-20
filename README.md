@@ -110,13 +110,16 @@ The `Embeddings` file is necessary to show the cells in a scatterplot.
 #### Custom config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.
 The configuration files does not need to refer to the dataset / image it is attached to and can refer to other images.
-[examples](http://vitessce.io/examples/)
+
+For how to create a custom config file see:
+- [VItessce Docs](http://vitessce.io/docs/view-config-json/)
+- [Vitessce Examples](http://vitessce.io/examples/)
 
 #### Serving the images / data /metadata
 Images and data can be served through:
 - [omero-web-zarr](https://pypi.org/project/omero-web-zarr/):  OME-NGFF images only.
 - [omero-openlink](https://github.com/sukunis/OMERO.openlink): all images and file attachements.
-- ´webclient/annotation/´ endpoint: only for Annotations (useful for file attachments).
+- `webclient/annotation/` endpoint: only for Annotations (useful for file attachments).
 
 Development
 =======================
