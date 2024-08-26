@@ -73,7 +73,7 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
-def create_config(dataset_id, config_args):
+def create_config(config_args):
     """
     Generates a Vitessce config and returns it,
     the results from the form are used as args.
