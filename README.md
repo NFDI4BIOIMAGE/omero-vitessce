@@ -108,8 +108,8 @@ The following fields are available:
 `Molecule y`          (optional, "y"):   	                                Name of the `Molecule y column` used in `Molecules`.
 `Histograms`          (required , `True`): 	                                Add 3 plots showing: The number of transcripts per cell, the number of cells in each set, gene expression in each set.
 `Heatmap`             (required , `True`):                                  Adds an heatmap.
-`Heatmap`             (required , `True`):                                  Adds a status panel to display info on the selected cell.
-`Heatmap`             (required , `True`):                                  Adds a description panel to display info on the .
+`Status`              (required , `False`):                                 Adds a status panel to display info on the selected cell.
+`Description`         (required , `False`):                                 Adds a description panel to display info on the .
 
 The `Expression` and `Cell identities` files are required to show the histograms.  
 The `Embeddings` file is necessary to show the cells in a scatterplot.
