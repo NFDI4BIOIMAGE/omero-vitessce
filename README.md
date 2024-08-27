@@ -108,10 +108,13 @@ The following fields are available:
 `Molecule y`          (optional, "y"):   	                                Name of the `Molecule y column` used in `Molecules`.
 `Histograms`          (required , `True`): 	                                Add 3 plots showing: The number of transcripts per cell, the number of cells in each set, gene expression in each set.
 `Heatmap`             (required , `True`):                                  Adds an heatmap.
+`Heatmap`             (required , `True`):                                  Adds a status panel to display info on the selected cell.
+`Heatmap`             (required , `True`):                                  Adds a description panel to display info on the .
 
 The `Expression` and `Cell identities` files are required to show the histograms.  
 The `Embeddings` file is necessary to show the cells in a scatterplot.
 The `Molecules` file is used to overlay molecules on the image. All molecules are displayed and selecting by gene is not yet possible.  
+The `Status` panel will be empty unless a `Segmentation` or `Embeddings` are provided.  
 
 #### Custom config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.

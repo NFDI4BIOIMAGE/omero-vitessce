@@ -85,6 +85,10 @@ class ConfigForm(forms.Form):
                                                        required=False)
         self.fields["heatmap"] = forms.BooleanField(initial=True,
                                                     required=False)
+        self.fields["status"] = forms.BooleanField(initial=False,
+                                                   required=False)
+        self.fields["description"] = forms.BooleanField(initial=False,
+                                                        required=False)
 
         # Set default values for CharField fields
         self.fields["config file name"].initial = filename

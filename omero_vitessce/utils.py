@@ -73,6 +73,19 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
+def get_details(obj_type, obj_id, conn):
+    """ Gets all the ".json" files attached to an object
+    and returns a list of file names and a list of urls
+    generated with build_viewer_url
+    """
+    obj = conn.getObject(obj_type, obj_id)
+    name = obj.getName()
+    description = obj.getDescription()
+    if not description:
+        description = "Generated with omero-vitessce"
+    return description, name
+
+
 def add_molecules(config_args, vc_dataset):
     """
     Adds a file with molecule labels and locations to a vitessce dataset
@@ -130,12 +143,16 @@ def add_cell_identities(config_args, vc_dataset):
     return vc_dataset
 
 
-def create_config(config_args):
+def create_config(config_args, obj_type, obj_id, conn):
     """
     Generates a Vitessce config and returns it,
     the results from the form are used as args.
     """
-    vc = VitessceConfig(schema_version="1.0.16")
+
+    description, name = get_details(obj_type, obj_id, conn)
+
+    vc = VitessceConfig(schema_version="1.0.16",
+                        name=name, description=description)
     vc_dataset = vc.add_dataset()
 
     img_url = config_args.get("image")
@@ -144,9 +161,10 @@ def create_config(config_args):
     sp = vc.add_view(Vt.SPATIAL, dataset=vc_dataset)
     lc = vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset)
 
-    displays = [sp]
-    controllers = [lc]
-    hists = []
+    displays = [sp]     # Heatmap, scatterplot and image
+    controllers = [lc]  # Spatial layer, gene and cell set selectors
+    hists = []          # Histograms and violin plots
+    texts = []          # Status and description
 
     if config_args.get("cell identities"):
         vc_dataset = add_cell_identities(config_args, vc_dataset)
@@ -184,6 +202,12 @@ def create_config(config_args):
         vc_dataset = add_molecules(config_args, vc_dataset)
         vc.link_views([sp, lc], c_types=[Ct.SPATIAL_POINT_LAYER],
                       c_values=[{"opacity": 1, "radius": 2, "visible": True}])
+    if config_args.get("description"):
+        de = vc.add_view(Vt.DESCRIPTION, dataset=vc_dataset)
+        texts.append(de)
+    if config_args.get("status"):
+        st = vc.add_view(Vt.STATUS, dataset=vc_dataset)
+        texts.append(st)
 
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
@@ -195,6 +219,9 @@ def create_config(config_args):
 
     displays = hconcat(*displays)
     controllers = hconcat(*controllers)
+    if texts:
+        texts = vconcat(*texts)
+        controllers = hconcat(texts, controllers)
     if hists:
         hists = hconcat(*hists)
         controllers = hconcat(controllers, hists)
