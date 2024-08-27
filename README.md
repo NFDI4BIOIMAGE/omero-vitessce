@@ -72,7 +72,7 @@ This will open the vitessce viewer in a new tab using the first configuration fi
 
 ### Viewer window
 After autogenerating or selecting a config file, the Vitessce viewer is opened in a new tab:
-![Viewer GIF](https://github.com/user-attachments/assets/719a3093-2a6a-480d-afc9-522b4873310e)
+![Viewer GIF](https://github.com/user-attachments/assets/0f1effac-e681-4782-a69e-76702451fcbb)
 
 
 
@@ -91,21 +91,30 @@ The attachements must be in `.csv` format and the column with the cell identifie
 Only files attached to the dataset/image are available in the form.
 
 The following fields are available:
-`Config file name`    (required, "VitessceConfig-YYYY.MM.DD_HHMMSS.json"): Name of the config file to attach, a ".json" extension is added if missing. 	
-`Image`               (required): 	                                       OMERO Image to view, OME-NGFF images only.
-`Segmentation`        (optional, `None`): 	                               Segmentation to overlay on the image, OME-NGFF images only.
-`Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fileds below. 
-`Cell id column`      (optional, "cell_id"):   	                           Name of the `Cell id column` used in `Cell identities`, `Expression`, `Embeddings`.
-`Label column`        (optional, "label"): 	                               Name of the `Label` used in `Cell identities`.
-`Expression` 	      (optional, `None`):                                  `.csv` file with the `Cell id column` all other columns are considered as expression values and should be numerical.
-`Embeddings`          (optional, `None`):                                  `.csv` file with the `Cell id column` and the `Embedding x` and `Embedding y` columns defined in the 2 fileds below. 
-`Embedding x`         (optional, "UMAP_1"): 	                            Name of the `Embedding x` used in `Embeddings`.
-`Embedding y`         (optional, "UMAP_2"): 	                            Name of the `Embedding y` used in `Embeddings`.
-`Histograms`          (required , `True`): 	                                Add 3 plots showing: The number of transcripts per cell, the number of cells in each set, gene expression in each set.
-`Heatmap`             (required , `True`):                                  Adds an heatmap.
+- `Config file name`    (required, "VitessceConfig-YYYY.MM.DD_HHMMSS.json"): Name of the config file to attach, a ".json" extension is added if missing. 	
+- `Image`               (required): 	                                       OMERO Image to view, OME-NGFF images only.
+- `Segmentation`        (optional, `None`): 	                               Segmentation to overlay on the image, OME-NGFF images only.
+- `Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fileds below. 
+- `Cell id column`      (optional, "cell_id"):   	                           Name of the `Cell id column` used in `Cell identities`, `Expression`, `Embeddings`.
+- `Label column`        (optional, "label"): 	                               Name of the `Label` used in `Cell identities`.
+- `Expression` 	      (optional, `None`):                                  `.csv` file with the `Cell id column` all other columns are considered as expression values and should be numerical.
+- `Embeddings`          (optional, `None`):                                  `.csv` file with the `Cell id column` and the `Embedding x` and `Embedding y` columns defined in the 2 fileds below. 
+- `Embedding x`         (optional, "UMAP_1"): 	                            Name of the `Embedding x` used in `Embeddings`.
+- `Embedding y`         (optional, "UMAP_2"): 	                            Name of the `Embedding y` used in `Embeddings`.
+- `Molecules`           (optional, `None`): 	                               `.csv` file with at least 4 columns: Molecule id, label, x, y (headers in the fields below). 
+- `Molecule id`         (optional, "id"):   	                                Name of the `Molecule id column` used in `Molecules`.
+- `Molecule label`      (optional, "gene"):   	                            Name of the `Molecule label column` used in `Molecules`.
+- `Molecule x`          (optional, "x"):   	                                Name of the `Molecule x column` used in `Molecules`.
+- `Molecule y`          (optional, "y"):   	                                Name of the `Molecule y column` used in `Molecules`.
+- `Histograms`          (required , `True`): 	                                Add 3 plots showing: The number of transcripts per cell, the number of cells in each set, gene expression in each set.
+- `Heatmap`             (required , `True`):                                  Adds an heatmap.
+- `Status`              (required , `False`):                                 Adds a status panel to display info on the selected cell.
+- `Description`         (required , `False`):                                 Adds a description panel to display info on the dataset/image (taken from the description metadata field from OMERO).
 
 The `Expression` and `Cell identities` files are required to show the histograms.  
 The `Embeddings` file is necessary to show the cells in a scatterplot.
+The `Molecules` file is used to overlay molecules on the image. All molecules are displayed and selecting by gene is not yet possible.  
+The `Status` panel will be empty unless a `Segmentation` or `Embeddings` are provided.  
 
 #### Attaching preexisting config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.

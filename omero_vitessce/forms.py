@@ -12,6 +12,10 @@ class ConfigForm(forms.Form):
     default_label_col = "label"
     default_embedding_x_col = "UMAP_1"
     default_embedding_y_col = "UMAP_2"
+    default_molecule_id = "id"
+    default_molecule_label = "gene"
+    default_molecule_x_col = "x"
+    default_molecule_y_col = "y"
 
     def __init__(self, file_names, file_urls,
                  img_names, img_urls, *args, **kwargs):
@@ -58,10 +62,33 @@ class ConfigForm(forms.Form):
                 empty_value=ConfigForm.default_embedding_y_col, strip=True,
                 min_length=1, max_length=20, required=False)
 
+        self.fields["molecules"] = forms.ChoiceField(
+                choices=self.text_choices, required=False)
+
+        self.fields["molecule id"] = forms.CharField(
+                empty_value=ConfigForm.default_molecule_id, strip=True,
+                min_length=1, max_length=20, required=False)
+
+        self.fields["molecule label"] = forms.CharField(
+                empty_value=ConfigForm.default_molecule_label, strip=True,
+                min_length=1, max_length=20, required=False)
+
+        self.fields["molecule x"] = forms.CharField(
+                empty_value=ConfigForm.default_molecule_x_col, strip=True,
+                min_length=1, max_length=20, required=False)
+
+        self.fields["molecule y"] = forms.CharField(
+                empty_value=ConfigForm.default_molecule_y_col, strip=True,
+                min_length=1, max_length=20, required=False)
+
         self.fields["histograms"] = forms.BooleanField(initial=True,
                                                        required=False)
         self.fields["heatmap"] = forms.BooleanField(initial=True,
                                                     required=False)
+        self.fields["status"] = forms.BooleanField(initial=False,
+                                                   required=False)
+        self.fields["description"] = forms.BooleanField(initial=False,
+                                                        required=False)
 
         # Set default values for CharField fields
         self.fields["config file name"].initial = filename
@@ -69,6 +96,11 @@ class ConfigForm(forms.Form):
         self.fields["label column"].initial = ConfigForm.default_label_col
         self.fields["embedding x"].initial = ConfigForm.default_embedding_x_col
         self.fields["embedding y"].initial = ConfigForm.default_embedding_y_col
+        self.fields["molecule id"].initial = ConfigForm.default_molecule_id
+        self.fields[
+                "molecule label"].initial = ConfigForm.default_molecule_label
+        self.fields["molecule x"].initial = ConfigForm.default_molecule_x_col
+        self.fields["molecule y"].initial = ConfigForm.default_molecule_y_col
 
     def make_config_file_name(self):
         """ Creates the default config file name with a timestamp:
