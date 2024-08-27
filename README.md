@@ -101,11 +101,17 @@ The following fields are available:
 `Embeddings`          (optional, `None`):                                  `.csv` file with the `Cell id column` and the `Embedding x` and `Embedding y` columns defined in the 2 fileds below. 
 `Embedding x`         (optional, "UMAP_1"): 	                            Name of the `Embedding x` used in `Embeddings`.
 `Embedding y`         (optional, "UMAP_2"): 	                            Name of the `Embedding y` used in `Embeddings`.
+`Molecules`           (optional, `None`): 	                               `.csv` file with at least 4 columns: Molecule id, label, x, y (headers in the fields below). 
+`Molecule id`         (optional, "id"):   	                                Name of the `Molecule id column` used in `Molecules`.
+`Molecule label`      (optional, "gene"):   	                            Name of the `Molecule label column` used in `Molecules`.
+`Molecule x`          (optional, "x"):   	                                Name of the `Molecule x column` used in `Molecules`.
+`Molecule y`          (optional, "y"):   	                                Name of the `Molecule y column` used in `Molecules`.
 `Histograms`          (required , `True`): 	                                Add 3 plots showing: The number of transcripts per cell, the number of cells in each set, gene expression in each set.
 `Heatmap`             (required , `True`):                                  Adds an heatmap.
 
 The `Expression` and `Cell identities` files are required to show the histograms.  
 The `Embeddings` file is necessary to show the cells in a scatterplot.
+The `Molecules` file is used to overlay molecules on the image. All molecules are displayed and selecting by gene is not yet possible.  
 
 #### Custom config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.

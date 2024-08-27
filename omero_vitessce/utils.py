@@ -73,16 +73,72 @@ def get_attached_configs(obj_type, obj_id, conn):
     return config_files, config_urls
 
 
+def add_molecules(config_args, vc_dataset):
+    """
+    Adds a file with molecule labels and locations to a vitessce dataset
+    """
+    vc_dataset = vc_dataset.add_file(
+        url=config_args.get("molecules"),
+        file_type=Ft.OBS_LOCATIONS_CSV,
+        coordination_values={
+            "obsType": "molecule"},
+        options={
+            "obsIndex": config_args.get("molecule id"),
+            "obsLocations": [config_args.get("molecule x"),
+                             config_args.get("molecule y")]})
+    vc_dataset = vc_dataset.add_file(
+        url=config_args.get("molecules"),
+        file_type=Ft.OBS_LABELS_CSV,
+        coordination_values={
+            "obsType": "molecule"},
+        options={
+            "obsIndex": config_args.get("molecule id"),
+            "obsLabels": config_args.get("molecule label")})
+    return vc_dataset
+
+
+def add_embeddings(config_args, vc_dataset):
+    """
+    Adds a file with cell embeddings to a vitessce dataset
+    """
+    vc_dataset = vc_dataset.add_file(
+        url=config_args.get("embeddings"),
+        file_type=Ft.OBS_EMBEDDING_CSV,
+        coordination_values={
+            "obsType": "cell",
+            "embeddingType": "cell"},
+        options={
+            "obsIndex": config_args.get("cell id column"),
+            "obsEmbedding": [config_args.get("embedding x"),
+                             config_args.get("embedding y")]})
+    return vc_dataset
+
+
+def add_cell_identities(config_args, vc_dataset):
+    """
+    Adds a file with cell identities to a vitessce dataset
+    """
+    vc_dataset = vc_dataset.add_file(
+        url=config_args.get("cell identities"),
+        file_type=Ft.OBS_SETS_CSV,
+        coordination_values={"obsType": "cell"},
+        options={
+            "obsIndex": config_args.get("cell id column"),
+            "obsSets": [
+                {"name": "Clustering",
+                 "column": config_args.get("label column")}]})
+    return vc_dataset
+
+
 def create_config(config_args):
     """
     Generates a Vitessce config and returns it,
     the results from the form are used as args.
     """
-    vc = VitessceConfig(schema_version="1.0.6")
+    vc = VitessceConfig(schema_version="1.0.16")
     vc_dataset = vc.add_dataset()
 
     img_url = config_args.get("image")
-
     images = [OmeZarrWrapper(img_url=img_url, name="Image")]
 
     sp = vc.add_view(Vt.SPATIAL, dataset=vc_dataset)
@@ -93,61 +149,49 @@ def create_config(config_args):
     hists = []
 
     if config_args.get("cell identities"):
-        vc_dataset = vc_dataset.add_file(
-            url=config_args.get("cell identities"),
-            file_type=Ft.OBS_SETS_CSV,
-            coordination_values={"obsType": "cell"},
-            options={
-                "obsIndex": config_args.get("cell id column"),
-                "obsSets": [
-                    {"name": "Clustering",
-                     "column": config_args.get("label column")}]})
+        vc_dataset = add_cell_identities(config_args, vc_dataset)
         os = vc.add_view(Vt.OBS_SETS, dataset=vc_dataset)
         controllers.append(os)
-
     if config_args.get("expression"):
         vc_dataset = vc_dataset.add_file(
             url=config_args.get("expression"),
             file_type=Ft.OBS_FEATURE_MATRIX_CSV)
         fl = vc.add_view(Vt.FEATURE_LIST, dataset=vc_dataset)
         controllers.append(fl)
-
     if config_args.get("embeddings"):
-        vc_dataset = vc_dataset.add_file(
-            url=config_args.get("embeddings"),
-            file_type=Ft.OBS_EMBEDDING_CSV,
-            coordination_values={
-                "obsType": "cell",
-                "embeddingType": "cell"},
-            options={
-                "obsIndex": config_args.get("cell id column"),
-                "obsEmbedding": [config_args.get("embedding x"),
-                                 config_args.get("embedding y")]})
+        vc_dataset = add_embeddings(config_args, vc_dataset)
+        e_type = vc.add_coordination(Ct.EMBEDDING_TYPE)[0]
+        e_type.set_value("cell")
         sc = vc.add_view(Vt.SCATTERPLOT, dataset=vc_dataset)
+        sc.use_coordination(e_type)
         displays.append(sc)
-
     if config_args.get("expression") and config_args.get("cell identities"):
         if config_args.get("histograms"):
             fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
             oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
             fd = vc.add_view(Vt.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
                              dataset=vc_dataset)
-            hists.append(fh)
-            hists.append(oh)
-            hists.append(fd)
+            hists.extend([fh, oh, fd])
         if config_args.get("heatmap"):
             hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
             displays.append(hm)
-
     if config_args.get("segmentation"):
         segmentation = OmeZarrWrapper(
                 img_url=config_args.get("segmentation"),
-                name="Segmentation",
-                is_bitmask=True)
+                name="Segmentation", is_bitmask=True)
         images.append(segmentation)
+    if config_args.get("molecules"):
+        vc_dataset = add_molecules(config_args, vc_dataset)
+        vc.link_views([sp, lc], c_types=[Ct.SPATIAL_POINT_LAYER],
+                      c_values=[{"opacity": 1, "radius": 2, "visible": True}])
 
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
+    vc.add_coordination_by_dict({
+        Ct.SPATIAL_ZOOM: 2,
+        Ct.SPATIAL_TARGET_X: 0,
+        Ct.SPATIAL_TARGET_Y: 0
+    })
 
     displays = hconcat(*displays)
     controllers = hconcat(*controllers)
@@ -155,12 +199,6 @@ def create_config(config_args):
         hists = hconcat(*hists)
         controllers = hconcat(controllers, hists)
     vc.layout(vconcat(displays, controllers))
-
-    vc.add_coordination_by_dict({
-        Ct.SPATIAL_ZOOM: 2,
-        Ct.SPATIAL_TARGET_X: 0,
-        Ct.SPATIAL_TARGET_Y: 0,
-    })
 
     return vc
 
