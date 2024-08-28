@@ -85,8 +85,7 @@ Config files can be generated for:
 - `images`
 - `datasets`
 
-Assumes that the images are in the OME-NGFF format v0.4 and that [omero-web-zarr](https://github.com/ome/omero-web-zarr) is
-available to serve the images.
+Assumes that [omero-web-zarr](https://github.com/ome/omero-web-zarr) is available to serve the images.
 The attachements must be in `.csv` format and the column with the cell identifiers should be consistent across attachements.
 Only files attached to the dataset/image are available in the form.
 
