@@ -13,18 +13,25 @@
 					<li><h1><a href={{url}} target="_blank"> {{file}}</a></h1></li>
 				{% endfor %}
 				 </ul> 
-				<p> Or use the form below to autogenerate one:</p>
 			{% else %}
 				<p> There are no config files attached! </p>
-				<p> Either attach a config file or use the form below to autogenerate one:</p>
+				<p> To use the viewer you can attach a .json config file and refresh the panel. </p>
 			{% endif %}
-			<form action='/omero_vitessce/generate_config/{{obj_type}}/{{obj_id}}' method="post">
-				{% csrf_token %}
-				<table>
-				{{ form.as_table }}
-				</table>
-				<input type = "submit" value = "Generate Config"> 
-			</form>
+				<br>
+			{% if form %}
+				 <p> Or use the form below to generate a new config file:</p>
+				<form action='/omero_vitessce/generate_config/{{obj_type}}/{{obj_id}}' method="post">
+					{% csrf_token %}
+					<table>
+					{{ form.as_table }}
+					</table>
+					<input type = "submit" value = "Generate Config"> 
+				</form>
+			{% else %}
+				<p> Autogenerating config files requires the 
+				<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>
+				plugin which seems not to be available. </p>
+			{% endif %}
 			</div>
 		</body>
 </html>
