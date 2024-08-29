@@ -17,7 +17,7 @@ def get_files_images(obj_type, obj_id, conn):
     """ Gets all the non config files attached to an object,
     and images if the object is a dataset,
     and returns a list of file names and a list of urls
-    for the files and eventually the images
+    for the files and eventually the images.
     """
     obj = conn.getObject(obj_type, obj_id)
     file_names = [

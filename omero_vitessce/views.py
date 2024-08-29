@@ -7,6 +7,13 @@ from .forms import ConfigForm
 from .utils import get_attached_configs, create_config, attach_config
 from .utils import get_files_images, build_viewer_url
 
+from omeroweb.settings import ADDITIONAL_APPS
+
+# Check if omero_web_zarr is installed and configured
+# If "omero_web_zarr" is included in ADDITIONAL_APPS but
+# not installed omero web would not start, so no need to check
+OMERO_WEB_ZARR = "omero_web_zarr" in ADDITIONAL_APPS
+
 
 @login_required()
 def vitessce_index(request, conn=None, **kwargs):
@@ -28,10 +35,13 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     context = {"json_configs": dict(zip(config_files, config_urls)),
                "obj_type": obj_type, "obj_id": obj_id}
 
-    files, urls, img_files, img_urls = get_files_images(
-            obj_type, obj_id, conn)
-    form = ConfigForm(files, urls, img_files, img_urls)
-    context["form"] = form
+    if OMERO_WEB_ZARR:
+        files, urls, img_files, img_urls = get_files_images(
+                obj_type, obj_id, conn)
+        form = ConfigForm(files, urls, img_files, img_urls)
+        context["form"] = form
+    else:
+        context["form"] = None
 
     return render(request, "omero_vitessce/vitessce_panel.html", context)
 
