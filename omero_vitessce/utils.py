@@ -96,17 +96,17 @@ def add_molecules(config_args, vc_dataset):
         coordination_values={
             "obsType": "molecule"},
         options={
-            "obsIndex": config_args.get("molecule id"),
-            "obsLocations": [config_args.get("molecule x"),
-                             config_args.get("molecule y")]})
+            "obsIndex": config_args.get("molecule_id"),
+            "obsLocations": [config_args.get("molecule_x"),
+                             config_args.get("molecule_y")]})
     vc_dataset = vc_dataset.add_file(
         url=config_args.get("molecules"),
         file_type=Ft.OBS_LABELS_CSV,
         coordination_values={
             "obsType": "molecule"},
         options={
-            "obsIndex": config_args.get("molecule id"),
-            "obsLabels": config_args.get("molecule label")})
+            "obsIndex": config_args.get("molecule_id"),
+            "obsLabels": config_args.get("molecule_label")})
     return vc_dataset
 
 
@@ -121,9 +121,9 @@ def add_embeddings(config_args, vc_dataset):
             "obsType": "cell",
             "embeddingType": "cell"},
         options={
-            "obsIndex": config_args.get("cell id column"),
-            "obsEmbedding": [config_args.get("embedding x"),
-                             config_args.get("embedding y")]})
+            "obsIndex": config_args.get("cell_id_column"),
+            "obsEmbedding": [config_args.get("embedding_x"),
+                             config_args.get("embedding_y")]})
     return vc_dataset
 
 
@@ -132,14 +132,14 @@ def add_cell_identities(config_args, vc_dataset):
     Adds a file with cell identities to a vitessce dataset
     """
     vc_dataset = vc_dataset.add_file(
-        url=config_args.get("cell identities"),
+        url=config_args.get("cell_identities"),
         file_type=Ft.OBS_SETS_CSV,
         coordination_values={"obsType": "cell"},
         options={
-            "obsIndex": config_args.get("cell id column"),
+            "obsIndex": config_args.get("cell_id_column"),
             "obsSets": [
                 {"name": "Clustering",
-                 "column": config_args.get("label column")}]})
+                 "column": config_args.get("cell_label_column")}]})
     return vc_dataset
 
 
@@ -166,7 +166,7 @@ def create_config(config_args, obj_type, obj_id, conn):
     hists = []          # Histograms and violin plots
     texts = []          # Status and description
 
-    if config_args.get("cell identities"):
+    if config_args.get("cell_identities"):
         vc_dataset = add_cell_identities(config_args, vc_dataset)
         os = vc.add_view(Vt.OBS_SETS, dataset=vc_dataset)
         controllers.append(os)
@@ -183,7 +183,7 @@ def create_config(config_args, obj_type, obj_id, conn):
         sc = vc.add_view(Vt.SCATTERPLOT, dataset=vc_dataset)
         sc.use_coordination(e_type)
         displays.append(sc)
-    if config_args.get("expression") and config_args.get("cell identities"):
+    if config_args.get("expression") and config_args.get("cell_identities"):
         if config_args.get("histograms"):
             fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
             oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)

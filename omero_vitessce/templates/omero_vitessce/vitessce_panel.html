@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<title> OMERO Vitessce</title>
-
 	</head>
 		</body>
 			<div class="right_tab_inner">
@@ -23,7 +22,97 @@
 				<form action='/omero_vitessce/generate_config/{{obj_type}}/{{obj_id}}' method="post">
 					{% csrf_token %}
 					<table>
-					{{ form.as_table }}
+					<tr>
+						<th colspan="2" style="text-align:center;">Vitessce viewer configuration</th>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.config_file_name.label_tag }}</th>
+						<th style="text-align:left;">{{ form.config_file_name }}</td>
+					</tr>
+					<tr>
+						<th colspan="2" style="text-align:center;">Images</th>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.image.label_tag }}</td>
+						<th style="text-align:left;">{{ form.image }}</td>
+					</tr>
+					<tr>
+						<th colspan="2" style="text-align:center;">Cell Data</th>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.segmentation.label_tag }}</td>
+						<th style="text-align:left;">{{ form.segmentation }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.cell_identities.label_tag }}
+						<th style="text-align:left;">{{ form.cell_identities }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.cell_id_column.label_tag }}
+						<th style="text-align:left;">{{ form.cell_id_column }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.cell_label_column.label_tag }}
+						<th style="text-align:left;">{{ form.cell_label_column }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.expression.label_tag }}
+						<th style="text-align:left;">{{ form.expression }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.embeddings.label_tag }}
+						<th style="text-align:left;">{{ form.embeddings }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.embedding_x.label_tag }}
+						<th style="text-align:left;">{{ form.embedding_x }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.embedding_y.label_tag }}
+						<th style="text-align:left;">{{ form.embedding_y }}</td>
+					</tr>
+					<tr>
+						<th colspan="2" style="text-align:center;">Molecule Data</th>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.molecules.label_tag }}
+						<th style="text-align:left;">{{ form.molecules }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.molecule_id.label_tag }}
+						<th style="text-align:left;">{{ form.molecule_id }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.molecule_label.label_tag }}
+						<th style="text-align:left;">{{ form.molecule_label }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.molecule_x.label_tag }}
+						<th style="text-align:left;">{{ form.molecule_x }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.molecule_y.label_tag }}
+						<th style="text-align:left;">{{ form.molecule_y }}</td>
+					</tr>
+					<tr>
+						<th colspan="2" style="text-align:center;">Additional views</th>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.histograms.label_tag }}</td>
+						<th style="text-align:left;">{{ form.histograms }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.heatmap.label_tag }}</td>
+						<th style="text-align:left;">{{ form.heatmap }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.status.label_tag }}</td>
+						<th style="text-align:left;">{{ form.status }}</td>
+					</tr>
+					<tr>
+						<th style="text-align:left;">{{ form.description.label_tag }}</td>
+						<th style="text-align:left;">{{ form.description }}</td>
+					</tr>
 					</table>
 					<input type = "submit" value = "Generate Config"> 
 				</form>
