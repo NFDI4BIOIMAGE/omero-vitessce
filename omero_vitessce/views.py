@@ -55,7 +55,7 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
     obj_id = int(obj_id)
     vitessce_config = create_config(request.POST, obj_type, obj_id, conn)
 
-    config_filename = request.POST.get("config file name")
+    config_filename = request.POST.get("config_file_name")
     config_id = attach_config(vitessce_config, obj_type,
                               obj_id, config_filename, conn)
     viewer_url = build_viewer_url(config_id)
