@@ -93,11 +93,11 @@ The following fields are available:
 - `Config file name`    (required, "VitessceConfig-YYYY.MM.DD_HHMMSS.json"): Name of the config file to attach, a ".json" extension is added if missing. 	
 - `Image`               (required): 	                                       OMERO Image to view.
 - `Segmentation`        (optional, `None`): 	                               Label image to overlay on the image, pixel values correspond to cell identities.
-- `Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fileds below. 
+- `Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fields below. 
 - `Cell id column`      (optional, "cell_id"):   	                           Name of the `Cell id column` used in `Cell identities`, `Expression`, `Embeddings`.
 - `Label column`        (optional, "label"): 	                               Name of the `Label` used in `Cell identities`.
 - `Expression` 	      (optional, `None`):                                  `.csv` file with the `Cell id column` all other columns are considered as expression values and should be numerical.
-- `Embeddings`          (optional, `None`):                                  `.csv` file with the `Cell id column` and the `Embedding x` and `Embedding y` columns defined in the 2 fileds below. 
+- `Embeddings`          (optional, `None`):                                  `.csv` file with the `Cell id column` and the `Embedding x` and `Embedding y` columns defined in the 2 fields below. 
 - `Embedding x`         (optional, "UMAP_1"): 	                            Name of the `Embedding x` used in `Embeddings`.
 - `Embedding y`         (optional, "UMAP_2"): 	                            Name of the `Embedding y` used in `Embeddings`.
 - `Molecules`           (optional, `None`): 	                               `.csv` file with at least 4 columns: Molecule id, label, x, y (headers in the fields below). 
