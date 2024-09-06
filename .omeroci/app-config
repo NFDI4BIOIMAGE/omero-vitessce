@@ -8,4 +8,4 @@ value=$(get_app_name)
 # Configuration commands
 
 su - omero-web -c "env OMERODIR=$OMERODIR /opt/omero/web/venv3/bin/omero config set omero.web.apps '[\"$value\"]'"
-su - omero-web -c "env OMERODIR=$OMERODIR /opt/omero/web/venv3/bin/omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'
+su - omero-web -c "env OMERODIR=$OMERODIR /opt/omero/web/venv3/bin/omero config set omero.web.omero_vitessce.serveraddress '"http://localhost:4080"'"
