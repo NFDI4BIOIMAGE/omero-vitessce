@@ -91,7 +91,7 @@ Only files attached to the dataset/image are available in the form.
 
 The following fields are available:
 - `Config file name`    (required, "VitessceConfig-YYYY.MM.DD_HHMMSS.json"): Name of the config file to attach, a ".json" extension is added if missing. 	
-- `Image`               (required): 	                                       OMERO Image to view.
+- `Images`               (required): 	                                       OMERO Image(s) to view, assumes the same pixel size for all images.
 - `Segmentation`        (optional, `None`): 	                               Label image to overlay on the image, pixel values correspond to cell identities.
 - `Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fields below. 
 - `Cell id column`      (optional, "cell_id"):   	                           Name of the `Cell id column` used in `Cell identities`, `Expression`, `Embeddings`.

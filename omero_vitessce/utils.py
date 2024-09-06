@@ -3,6 +3,7 @@ from pathlib import Path
 
 from omero.util.temp_files import create_path
 
+from .forms import ConfigForm
 from . import omero_vitessce_settings
 
 from vitessce import VitessceConfig, OmeZarrWrapper, MultiImageWrapper
@@ -149,14 +150,26 @@ def create_config(config_args, obj_type, obj_id, conn):
     the results from the form are used as args.
     """
 
+    # If an attachment/image is deleted/moved between the Vitessce right tab
+    # plugin is loaded and the form is submitted then it will not be found
+    # and will not be present in the cleaned_data -> None
+    file_names, file_urls, img_files, img_urls = get_files_images(
+        obj_type, obj_id, conn)
+    config_args = ConfigForm(data=config_args, file_names=file_names,
+                             file_urls=file_urls, img_names=img_files,
+                             img_urls=img_urls)
+    config_args = config_args.cleaned_data
+
     description, name = get_details(obj_type, obj_id, conn)
 
     vc = VitessceConfig(schema_version="1.0.16",
                         name=name, description=description)
     vc_dataset = vc.add_dataset()
 
-    img_url = config_args.get("image")
-    images = [OmeZarrWrapper(img_url=img_url, name="Image")]
+    images = []
+    img_urls = config_args.get("images")
+    for n, img_url in enumerate(img_urls):
+        images.append(OmeZarrWrapper(img_url=img_url, name=f"Image {n}"))
 
     sp = vc.add_view(Vt.SPATIAL, dataset=vc_dataset)
     lc = vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset)
