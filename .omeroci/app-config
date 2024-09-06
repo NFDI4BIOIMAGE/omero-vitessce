@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 source /infra/utils
 set -e
 set +u
