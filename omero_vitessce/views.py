@@ -38,7 +38,8 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
     if OMERO_WEB_ZARR:
         files, urls, img_files, img_urls = get_files_images(
                 obj_type, obj_id, conn)
-        form = ConfigForm(files, urls, img_files, img_urls)
+        form = ConfigForm(file_names=files, file_urls=urls,
+                          img_names=img_files, img_urls=img_urls)
         context["form"] = form
     else:
         context["form"] = None

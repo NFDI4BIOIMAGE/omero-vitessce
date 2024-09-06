@@ -22,9 +22,9 @@ class ConfigForm(forms.Form):
 
     config_file_name_help = "Name of the config file to use, \
             a '.json' extension is added if missing."
-    image_help = "OMERO Image to view."
+    images_help = "OMERO Image(s) to view, assumes identical pixel size."
     segmentation_help = "Label image to overlay on the image, \
-            pixel values correspond to cell identities."
+            pixel values should correspond to cell identities."
     cell_identities_help = ".csv file with at least 2 columns: \
             Cell id column and Label column defined in the 2 fields below."
     cell_id_help = "Name of the Cell id column used in \
@@ -60,6 +60,7 @@ class ConfigForm(forms.Form):
         self.text_choices, self.image_choices = self.prepare_choices(
                 file_names, file_urls, img_names, img_urls)
 
+        # Configuration file fields
         filename = self.make_config_file_name()
 
         self.fields["config_file_name"] = forms.CharField(
@@ -67,12 +68,13 @@ class ConfigForm(forms.Form):
                 min_length=1, max_length=40, required=False,
                 help_text=ConfigForm.config_file_name_help)
 
+        # images field
         # No empty default, we alway want an image in the config
-        self.fields["image"] = forms.ChoiceField(
+        self.fields["images"] = forms.MultipleChoiceField(
                 choices=self.image_choices[1:], required=True,
-                help_text=ConfigForm.image_help)
+                help_text=ConfigForm.images_help)
 
-        # Cell data
+        # Cell data fields
         self.fields["segmentation"] = forms.ChoiceField(
                 choices=self.image_choices, required=False,
                 help_text=ConfigForm.segmentation_help)
@@ -109,7 +111,7 @@ class ConfigForm(forms.Form):
                 min_length=1, max_length=20, required=False,
                 help_text=ConfigForm.embeddings_y_help)
 
-        # Molecule data
+        # Molecule data fields
         self.fields["molecules"] = forms.ChoiceField(
                 choices=self.text_choices, required=False,
                 help_text=ConfigForm.molecules_help)
