@@ -13,7 +13,7 @@ def str_not_empty(o):
 
 OMEROVITESSCE_SETTINGS_MAPPINGS = {
     'omero.web.omero_vitessce.serveraddress': ['SERVER_ADDRESS',
-                                               '"http://localhost:4080"',
+                                               '""',
                                                str_not_empty, None]
 }
 
