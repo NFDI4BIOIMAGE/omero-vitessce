@@ -34,3 +34,7 @@ omero obj new DatasetAnnotationLink parent=$DATASET child=$TRANSCRIPT_ATTACH
 EXPRESSION_FILE=$(omero upload "$DATA_DIR/feature_matrix.csv")
 EXPRESSION_ATTACH=$(omero obj new FileAnnotation file=$EXPRESSION_FILE) # fileAnnotation:4
 omero obj new DatasetAnnotationLink parent=$DATASET child=$EXPRESSION_ATTACH
+
+CONFIG_FILE=$(omero upload "$DATA_DIR/VitessceConfig.json")
+CONFIG_ATTACH=$(omero obj new FileAnnotation file=$CONFIG_FILE) # fileAnnotation:5
+omero obj new DatasetAnnotationLink parent=$DATASET child=$CONFIG_ATTACH

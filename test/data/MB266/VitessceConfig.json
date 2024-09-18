@@ -1,0 +1,239 @@
+{
+    "version": "1.0.16",
+    "name": "TestData",
+    "description": "Generated with omero-vitessce",
+    "datasets": [
+        {
+            "uid": "A",
+            "name": "",
+            "files": [
+                {
+                    "fileType": "obsSets.csv",
+                    "url": "http://localhost:4080/webclient/annotation/1",
+                    "options": {
+                        "obsIndex": "cell_id",
+                        "obsSets": [
+                            {
+                                "name": "Clustering",
+                                "column": "label"
+                            }
+                        ]
+                    },
+                    "coordinationValues": {
+                        "obsType": "cell"
+                    }
+                },
+                {
+                    "fileType": "obsFeatureMatrix.csv",
+                    "url": "http://localhost:4080/webclient/annotation/4"
+                },
+                {
+                    "fileType": "obsEmbedding.csv",
+                    "url": "http://localhost:4080/webclient/annotation/2",
+                    "options": {
+                        "obsIndex": "cell_id",
+                        "obsEmbedding": [
+                            "UMAP_1",
+                            "UMAP_2"
+                        ]
+                    },
+                    "coordinationValues": {
+                        "obsType": "cell",
+                        "embeddingType": "cell"
+                    }
+                },
+                {
+                    "fileType": "obsLocations.csv",
+                    "url": "http://localhost:4080/webclient/annotation/3",
+                    "options": {
+                        "obsIndex": "id",
+                        "obsLocations": [
+                            "x",
+                            "y"
+                        ]
+                    },
+                    "coordinationValues": {
+                        "obsType": "molecule"
+                    }
+                },
+                {
+                    "fileType": "obsLabels.csv",
+                    "url": "http://localhost:4080/webclient/annotation/3",
+                    "options": {
+                        "obsIndex": "id",
+                        "obsLabels": "gene"
+                    },
+                    "coordinationValues": {
+                        "obsType": "molecule"
+                    }
+                },
+                {
+                    "fileType": "raster.json",
+                    "options": {
+                        "schemaVersion": "0.0.2",
+                        "usePhysicalSizeScaling": true,
+                        "images": [
+                            {
+                                "name": "Image 0",
+                                "type": "ome-zarr",
+                                "url": "http://localhost:4080/zarr/v0.4/image/1.zarr"
+                            },
+                            {
+                                "name": "Segmentation",
+                                "type": "ome-zarr",
+                                "url": "http://localhost:4080/zarr/v0.4/image/2.zarr",
+                                "metadata": {
+                                    "isBitmask": true
+                                }
+                            }
+                        ],
+                        "renderLayers": [
+                            "Image 0",
+                            "Segmentation"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "coordinationSpace": {
+        "dataset": {
+            "A": "A"
+        },
+        "embeddingType": {
+            "A": "cell"
+        },
+        "spatialPointLayer": {
+            "A": {
+                "opacity": 1,
+                "radius": 2,
+                "visible": true
+            }
+        },
+        "spatialZoom": {
+            "A": 2
+        },
+        "spatialTargetX": {
+            "A": 0
+        },
+        "spatialTargetY": {
+            "A": 0
+        }
+    },
+    "layout": [
+        {
+            "component": "spatial",
+            "coordinationScopes": {
+                "dataset": "A",
+                "spatialPointLayer": "A"
+            },
+            "x": 0.0,
+            "y": 0.0,
+            "w": 4.0,
+            "h": 6.0
+        },
+        {
+            "component": "layerController",
+            "coordinationScopes": {
+                "dataset": "A",
+                "spatialPointLayer": "A"
+            },
+            "x": 3.0,
+            "y": 6.0,
+            "w": 1.0,
+            "h": 6.0
+        },
+        {
+            "component": "obsSets",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 4.0,
+            "y": 6.0,
+            "w": 1.0,
+            "h": 6.0
+        },
+        {
+            "component": "featureList",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 5.0,
+            "y": 6.0,
+            "w": 1.0,
+            "h": 6.0
+        },
+        {
+            "component": "scatterplot",
+            "coordinationScopes": {
+                "dataset": "A",
+                "embeddingType": "A"
+            },
+            "x": 4.0,
+            "y": 0.0,
+            "w": 4.0,
+            "h": 6.0
+        },
+        {
+            "component": "featureValueHistogram",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 6.0,
+            "y": 6.0,
+            "w": 2.0,
+            "h": 6.0
+        },
+        {
+            "component": "obsSetSizes",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 8.0,
+            "y": 6.0,
+            "w": 2.0,
+            "h": 6.0
+        },
+        {
+            "component": "obsSetFeatureValueDistribution",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 10.0,
+            "y": 6.0,
+            "w": 2.0,
+            "h": 6.0
+        },
+        {
+            "component": "heatmap",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 8.0,
+            "y": 0.0,
+            "w": 4.0,
+            "h": 6.0
+        },
+        {
+            "component": "description",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 0.0,
+            "y": 6.0,
+            "w": 3.0,
+            "h": 3.0
+        },
+        {
+            "component": "status",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 0.0,
+            "y": 9.0,
+            "w": 3.0,
+            "h": 3.0
+        }
+    ],
+    "initStrategy": "auto"
+}
