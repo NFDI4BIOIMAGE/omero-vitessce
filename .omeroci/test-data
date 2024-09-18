@@ -17,7 +17,7 @@ PROJECT=$(omero obj new Project name=TestProject) # project:1
 omero obj new ProjectDatasetLink parent=$PROJECT child=$DATASET
 
 DAPI_IMAGE=$(omero import --output=ids  "$DATA_DIR/MB266-DAPI.tiff" -T Dataset:id:1) # image:1
-CELL_IMAGE=$(omero import --output=ids  "$DATA_DIR/MB266-DAPI.tiff" -T Dataset:id:1) # image:2
+CELL_IMAGE=$(omero import --output=ids  "$DATA_DIR/MB266-CELLS.png" -T Dataset:id:1) # image:2
 
 CELL_FILE=$(omero upload "$DATA_DIR/cells.csv")
 CELL_ATTACH=$(omero obj new FileAnnotation file=$CELL_FILE) # fileAnnotation:1
