@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+export DATA_DIR=$TARGET"/test/data/MB266"
+
+export PATH=$PATH:${OMERO_DIST}/bin
+
+## Set up group and user for testing
+omero login root@omero -w omero
+omero group add TestGroup --type=read-annotate
+omero user add test_user Test User --group-name=TestGroup --userpassword=password
+omero logout
+
+# Add test data
+omero login test_user@omero -w password -g TestGroup
+DATASET=$(omero obj new Dataset name=TestDataset) # dataset:1
+PROJECT=$(omero obj new Project name=TestProject) # project:1
+omero obj new ProjectDatasetLink parent=$PROJECT child=$DATASET
+
+DAPI_IMAGE=$(omero import --output=ids  "$DATA_DIR/MB266-DAPI.tiff" -T Dataset:id:1) # image:1
+CELL_IMAGE=$(omero import --output=ids  "$DATA_DIR/MB266-CELLS.png" -T Dataset:id:1) # image:2
+
+CELL_FILE=$(omero upload "$DATA_DIR/cells.csv")
+CELL_ATTACH=$(omero obj new FileAnnotation file=$CELL_FILE) # fileAnnotation:1
+omero obj new DatasetAnnotationLink parent=$DATASET child=$CELL_ATTACH
+
+EMBEDDING_FILE=$(omero upload "$DATA_DIR/embeddings.csv")
+EMBEDDING_ATTACH=$(omero obj new FileAnnotation file=$EMBEDDING_FILE) # fileAnnotation:2
+omero obj new DatasetAnnotationLink parent=$DATASET child=$EMBEDDING_ATTACH
+
+TRANSCRIPT_FILE=$(omero upload "$DATA_DIR/transcripts.csv")
+TRANSCRIPT_ATTACH=$(omero obj new FileAnnotation file=$TRANSCRIPT_FILE) # fileAnnotation:3
+omero obj new DatasetAnnotationLink parent=$DATASET child=$TRANSCRIPT_ATTACH
+
+EXPRESSION_FILE=$(omero upload "$DATA_DIR/feature_matrix.csv")
+EXPRESSION_ATTACH=$(omero obj new FileAnnotation file=$EXPRESSION_FILE) # fileAnnotation:4
+omero obj new DatasetAnnotationLink parent=$DATASET child=$EXPRESSION_ATTACH
+
+CONFIG_FILE=$(omero upload "$DATA_DIR/VitessceConfig.json")
+CONFIG_ATTACH=$(omero obj new FileAnnotation file=$CONFIG_FILE) # fileAnnotation:5
+omero obj new DatasetAnnotationLink parent=$DATASET child=$CONFIG_ATTACH

@@ -52,7 +52,7 @@ def build_viewer_url(config_id):
 
 def build_zarr_image_url(image_id):
     """ Generates urls like:
-    http://localhost:4080/zarr/v0.4/image/99999.zarr/
+    http://localhost:4080/zarr/v0.4/image/99999.zarr
     """
     return SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr"
 
@@ -153,13 +153,14 @@ def create_config(config_args, obj_type, obj_id, conn):
     # If an attachment/image is deleted/moved between the Vitessce right tab
     # plugin is loaded and the form is submitted then it will not be found
     # and will not be present in the cleaned_data -> None
+
     file_names, file_urls, img_files, img_urls = get_files_images(
         obj_type, obj_id, conn)
     config_args = ConfigForm(data=config_args, file_names=file_names,
                              file_urls=file_urls, img_names=img_files,
                              img_urls=img_urls)
+    config_args.is_valid()  # Generates the cleaned data
     config_args = config_args.cleaned_data
-
     description, name = get_details(obj_type, obj_id, conn)
 
     vc = VitessceConfig(schema_version="1.0.16",

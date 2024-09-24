@@ -136,13 +136,40 @@ Development
 
 ## Sources
 
-The main sources are:
+The main sources this project relies on are:
 - omero-vitessce from Will Moore: https://github.com/will-moore/omero-vitessce
 - cookiecutter-omero-webapp: https://github.com/ome/cookiecutter-omero-webapp
 - `react_webapp` from omero-web-apps-examples: https://github.com/ome/omero-web-apps-examples/tree/master/react-webapp
 - Vitessce python package used for generating config files http://python-docs.vitessce.io/
 - omero-web-zarr to serve OME-NGFF images: https://github.com/ome/omero-web-zarr
 - omero-openlink to serve images and other files: https://github.com/sukunis/OMERO.openlink
+- omero-test-infra for testing: https://github.com/ome/omero-test-infra
+
+## Tests
+
+### Test dataset
+The dataset used for automated testing is at: [test/data/MB266](test/data/MB266)
+This is a cropped version derived from larger images and their associated data available at:
+https://doi.org/10.5281/zenodo.13832665
+
+The original data are available at:
+https://www.ebi.ac.uk/biostudies/bioimages/studies/S-BIAD1093
+
+The associated publication is available at:
+https://www.biorxiv.org/content/10.1101/2024.04.03.586404v1
+
+### omero-test-infra configuration
+[omero-test-infra](https://github.com/ome/omero-test-infra) is used for automated tests with [github-actions](.github/workflows/omero_plugin.yml).
+The workflow setups an omero installation in docker and then:
+1)  Runs [app-config](.omeroci/app-config) to set up the omero-web plugin configuration.
+2)  Runs [app-build](.omeroci/app-build) which:
+- runs to create a test user/group and upload a [test dataset](test/data/MB266).
+- runs pytest tests in: [test/integration](test/integration)  
+
+It is possible to perform these tests locally by:
+1) Starting the docker daemon.
+2) Cloning the omero-test infra repository inside the base folder of omero-vitessce: `git clone https://github.com/openmicroscopy/omero-test-infra .omero`
+3) Running: `.omero/app-docker`
 
 ## React web app
 

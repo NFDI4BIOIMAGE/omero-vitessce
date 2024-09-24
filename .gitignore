@@ -1,4 +1,5 @@
 build
+.omero
 node_modules
 aurelia-webpack/aurelia_example/static
 backbone-grunt/backbone_example/static
