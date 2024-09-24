@@ -163,8 +163,8 @@ https://www.biorxiv.org/content/10.1101/2024.04.03.586404v1
 The workflow setups an omero installation in docker and then:
 1)  Runs [app-config](.omeroci/app-config) to set up the omero-web plugin configuration.
 2)  Runs [app-build](.omeroci/app-build) which:
-    - runs to create a test user/group and upload a [test dataset](test/data/MB266).
-    - runs pytest tests in: [test/integration](test/integration)  
+- runs to create a test user/group and upload a [test dataset](test/data/MB266).
+- runs pytest tests in: [test/integration](test/integration)  
 
 It is possible to perform these tests locally by:
 1) Starting the docker daemon.
