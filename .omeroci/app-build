@@ -20,4 +20,4 @@ set +u
 export DJANGO_SETTINGS_MODULE=omeroweb.settings
 export OMERODIR=/opt/omero/web/OMERO.web
 export ICE_CONFIG=${OMERO_DIST}/etc/ice.config
-pytest -v
+pytest -vv
