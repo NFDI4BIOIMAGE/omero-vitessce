@@ -73,13 +73,9 @@ def vitessce_open(request, conn=None, **kwargs):
     if request.GET.get("dataset") is not None:
         obj_type = "dataset"
         obj_id = int(request.GET.get("dataset"))
-    elif request.GET.get("image") is not None:
+    if request.GET.get("image") is not None:
         obj_type = "image"
         obj_id = int(request.GET.get("image"))
-    else:
-        context = {"json_configs": dict(),
-                   "obj_type": obj_type, "obj_id": obj_id}
-        return render(request, "omero_vitessce/vitessce_panel.html", context)
 
     _, config_urls = get_attached_configs(obj_type, obj_id, conn)
 
@@ -88,4 +84,12 @@ def vitessce_open(request, conn=None, **kwargs):
     else:
         context = {"json_configs": dict(),
                    "obj_type": obj_type, "obj_id": obj_id}
-        return render(request, "omero_vitessce/vitessce_panel.html", context)
+    if OMERO_WEB_ZARR:
+        files, urls, img_files, img_urls = get_files_images(
+                obj_type, obj_id, conn)
+        form = ConfigForm(file_names=files, file_urls=urls,
+                          img_names=img_files, img_urls=img_urls)
+        context["form"] = form
+    else:
+        context["form"] = None
+    return render(request, "omero_vitessce/vitessce_panel.html", context)
