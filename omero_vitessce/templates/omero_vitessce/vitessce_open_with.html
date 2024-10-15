@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+{% extends "webgateway/base/base_header.html" %}
+{% block content %}
+<style>
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black;
+	text-align: left;
+	font-size: medium;
+}
+
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 120px;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	position: absolute;
+	z-index: 1;
+	top: -5px;
+	left: 105%;
+
+}
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+</style>
+	<div style="text-align:center">
+			{% if json_configs %}
+				<p style="font-size:medium">Please select an attached config file from the list below:</p>
+				<ul>
+				{% for file, url in json_configs.items%}
+					<li><h1><a href={{url}} target="_blank"> {{file}}</a></h1></li>
+				{% endfor %}
+				 </ul> 
+			{% else %}
+				<p style="font-size:medium"> There are no config files attached! </p>
+				<p style="font-size:medium"> To use the viewer you can attach a .json config file and refresh the panel. </p>
+			{% endif %}
+				<br>
+			{% if form %}
+				 <p style="font-size:medium"> Or use the form below to generate a new config file:</p>
+				<form action='/omero_vitessce/generate_config/{{obj_type}}/{{obj_id}}' method="post">
+					{% csrf_token %}
+					<table style="margin: 0px auto; width: 50%;  height: 50%; font-size: medium">
+					<tr style="height:2vh">
+						<th colspan="2" style="text-align:center;vertical-align:middle;font-size:medium;font-weight:bold;">
+							Vitessce viewer configuration</th>
+						<tr style="height:4vh">
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.config_file_name.label_tag }}
+							<span class="tooltiptext">{{ form.config_file_name.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.config_file_name }}</th>
+					</tr>
+					<tr style="height:4vh">
+						<th colspan="2" style="text-align:center;vertical-align:middle;font-size:medium">
+							Images</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.images.label_tag }}
+							<span class="tooltiptext">{{ form.images.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.images }}</th>
+					<tr style="height:4vh">
+						<th colspan="2" style="text-align:center;vertical-align:middle;font-size:medium">
+							Cell Data</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.segmentation.label_tag }}
+							<span class="tooltiptext">{{ form.segmentation.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.segmentation }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.cell_identities.label_tag }}
+							<span class="tooltiptext">{{ form.cell_identities.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.cell_identities }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.cell_id_column.label_tag }}
+							<span class="tooltiptext">{{ form.cell_id_column.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.cell_id_column }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.cell_label_column.label_tag }}
+							<span class="tooltiptext">{{ form.cell_label_column.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.cell_label_column }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.expression.label_tag }}
+							<span class="tooltiptext">{{ form.expression.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.expression }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.embeddings.label_tag }}
+							<span class="tooltiptext">{{ form.embeddings.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.embeddings }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.embedding_x.label_tag }}
+							<span class="tooltiptext">{{ form.embedding_x.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.embedding_x }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.embedding_y.label_tag }}
+							<span class="tooltiptext">{{ form.embedding_y.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.embedding_y }}</th>
+					</tr>
+					<tr style="height:4vh">
+						<th colspan="2" style="text-align:center;vertical-align:middle;font-size:medium">
+							Molecule Data</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.molecule_id.label_tag }}
+							<span class="tooltiptext">{{form.molecule_id.help_text}}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.molecules }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.molecule_id.label_tag }}
+							<span class="tooltiptext">{{ form.molecule_id.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.molecule_id }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.molecule_label.label_tag }}
+							<span class="tooltiptext">{{ form.molecule_label.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.molecule_label }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.molecule_x.label_tag }}
+							<span class="tooltiptext">{{ form.molecule_x.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.molecule_x }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.molecule_y.label_tag }}
+							<span class="tooltiptext">{{ form.molecule_y.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.molecule_y }}</th>
+					</tr>
+					<tr style="height:4vh">
+						<th colspan="2" style="text-align:center;vertical-align:middle;font-size:medium">
+							Additional views</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.histograms.label_tag }}
+							<span class="tooltiptext">{{ form.histograms.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.histograms }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.heatmap.label_tag }}
+							<span class="tooltiptext">{{ form.heatmap.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.heatmap }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.status.label_tag }}
+							<span class="tooltiptext">{{ form.status.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.status }}</th>
+					</tr>
+					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.description.label_tag }}
+							<span class="tooltiptext">{{ form.description.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.description }}</th>
+					</tr>
+					</table>
+					<input type = "submit" value = "Generate Config"> 
+				</form>
+			{% else %}
+				<p style="font-size:medium%"> Autogenerating config files requires the 
+				<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>
+				plugin which seems not to be available. </p>
+			{% endif %}
+	</div>
+{% endblock %}

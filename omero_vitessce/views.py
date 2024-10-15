@@ -92,4 +92,4 @@ def vitessce_open(request, conn=None, **kwargs):
         context["form"] = form
     else:
         context["form"] = None
-    return render(request, "omero_vitessce/vitessce_panel.html", context)
+    return render(request, "omero_vitessce/vitessce_open_with.html", context)
