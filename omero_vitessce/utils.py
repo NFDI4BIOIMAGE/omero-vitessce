@@ -1,5 +1,4 @@
 import json
-import datetime
 from pathlib import Path
 from shapely.geometry import Polygon
 from omero_marshal import get_encoder
@@ -183,6 +182,10 @@ class VitessceShape():
 
 
 def process_rois(img_ids, conn):
+    """
+    Generates shapely polygons from OMERO rois,
+    extracted from a list of images
+    """
     rois = []
     for img_id in img_ids:
         img = conn.getObject("Image", img_id)
@@ -192,36 +195,24 @@ def process_rois(img_ids, conn):
 
 
 def make_cell_json(shapes):
+    """
+    Turns a list of polygons into a dictionary:
+    {cell_id: [[x, y], ...]}
+    """
     cell_dict = {}
     for s in shapes:
         cell_dict[s.name] = s.poly()
     return cell_dict
 
 
-def attach_cell_json(cell_dict, obj_type, obj_id, conn):
+def add_rois(img_ids, vc_dataset, conn):
     """
-    Writes a json file with the cell polygons from image ROIs
+    Adds a url to the rois in json format to the vitessce config
     """
-    ts = datetime.datetime.now().strftime("%Y.%m.%d_%H%M%S")
-    filename = "CellsFromROIs-" + ts + ".json.rois"
-    json_path = create_path("omero-vitessce", ".tmp", folder=True)
-    filename = Path(filename).name  # Sanitize filename
-    json_path = Path(json_path).joinpath(filename)
-    with open(json_path, "w") as outfile:
-        json.dump(cell_dict, outfile, indent=4, sort_keys=False)
-    file_ann = conn.createFileAnnfromLocalFile(
-        json_path, mimetype="text/plain")
-    obj = conn.getObject(obj_type, obj_id)
-    obj.linkAnnotation(file_ann)
-    return file_ann.getId()
-
-
-def add_rois(img_ids, obj_type, obj_id, vc_dataset, conn):
-    shapes = process_rois(img_ids, conn)
-    cell_dict = make_cell_json(shapes)
-    cell_json_id = attach_cell_json(cell_dict, obj_type, obj_id, conn)
+    cell_json_url = SERVER + "/omero_vitessce/vitessce_json_rois/" + \
+        ",".join([str(i) for i in img_ids])
     vc_dataset = vc_dataset.add_file(
-        url=build_attachement_url(cell_json_id),
+        url=cell_json_url,
         file_type=Ft.OBS_SEGMENTATIONS_JSON,
         coordination_values={"obsType": "cell"})
     return vc_dataset
@@ -296,10 +287,10 @@ def create_config(config_args, obj_type, obj_id, conn):
                 name="Segmentation", is_bitmask=True)
         images.append(segmentation)
     if config_args.get("rois"):
-        vc_dataset = add_rois(img_ids, obj_type, obj_id, vc_dataset, conn)
+        vc_dataset = add_rois(img_ids, vc_dataset, conn)
         vc.link_views([sp, lc], ["spatialSegmentationLayer"],
-                      [{ "opacity": 1, "radius": 0,
-                         "visible": True, "stroked": False }])
+                      [{"opacity": 1, "radius": 0,
+                        "visible": True, "stroked": False}])
     if config_args.get("molecules"):
         vc_dataset = add_molecules(config_args, vc_dataset)
         vc.link_views([sp, lc], c_types=[Ct.SPATIAL_POINT_LAYER],
@@ -313,7 +304,7 @@ def create_config(config_args, obj_type, obj_id, conn):
 
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
-    scopes = vc.add_coordination_by_dict({
+    vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
         Ct.SPATIAL_TARGET_Y: 0,
@@ -332,7 +323,7 @@ def create_config(config_args, obj_type, obj_id, conn):
     vc_dict = vc.to_dict()
 
     # OBS_SEGMENTATIONS_JSON does not work with raster.json
-    # https://github.com/vitessce/vitessce/discussions/1962 
+    # https://github.com/vitessce/vitessce/discussions/1962
     if config_args.get("rois"):
         for d in vc_dict["datasets"]:
             for f in d["files"]:
