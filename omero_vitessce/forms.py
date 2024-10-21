@@ -79,14 +79,13 @@ class ConfigForm(forms.Form):
         self.fields["segmentation"] = forms.ChoiceField(
                 choices=self.image_choices, required=False,
                 help_text=ConfigForm.segmentation_help)
-        # Segmentation and rois are mutually exclusive, 
+        # Segmentation and rois are mutually exclusive,
         # Setting rois to true disables the segmentation
-        self.fields["rois"] = \
-                forms.BooleanField(initial=False, required=False,
-                                   help_text=ConfigForm.rois_help)
+        self.fields["rois"] = forms.BooleanField(
+                initial=False, required=False,
+                help_text=ConfigForm.rois_help)
         self.fields["rois"].widget.attrs = \
-            {'onclick' : "javascript:toggleDisabled('id_segmentation');"}
-                               
+            {'onclick': "javascript:toggleDisabled('id_segmentation');"}
 
         self.fields["cell_identities"] = forms.ChoiceField(
                 choices=self.text_choices, required=False,
