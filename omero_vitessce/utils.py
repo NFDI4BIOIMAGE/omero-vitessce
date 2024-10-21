@@ -1,5 +1,8 @@
 import json
+import datetime
 from pathlib import Path
+from shapely.geometry import Polygon
+from omero_marshal import get_encoder
 
 from omero.util.temp_files import create_path
 
@@ -18,7 +21,7 @@ def get_files_images(obj_type, obj_id, conn):
     """ Gets all the non config files attached to an object,
     and images if the object is a dataset,
     and returns a list of file names and a list of urls
-    for the files and eventually the images.
+    for the files and eventually the images, plus the image ids.
     """
     obj = conn.getObject(obj_type, obj_id)
     file_names = [
@@ -29,17 +32,19 @@ def get_files_images(obj_type, obj_id, conn):
                   if i.getFileName().endswith(".csv")]
     file_urls = [i.getId() for i in file_names]
     file_names = [i.getFileName() for i in file_names]
-    file_urls = [SERVER + "/webclient/annotation/" + str(i) for i in file_urls]
+    file_urls = [build_attachement_url(i) for i in file_urls]
 
     if obj_type == "dataset":
         imgs = list(obj.listChildren())
-        img_urls = [build_zarr_image_url(i.getId()) for i in imgs]
+        img_ids = [i.getId() for i in imgs]
+        img_urls = [build_zarr_image_url(i) for i in img_ids]
         img_names = [i.getName() for i in imgs]
     else:
         img_urls = [build_zarr_image_url(obj_id)]
         img_names = [obj.getName()]
+        img_ids = [obj_id]
 
-    return file_names, file_urls, img_names, img_urls
+    return file_names, file_urls, img_names, img_urls, img_ids
 
 
 def build_viewer_url(config_id):
@@ -55,6 +60,13 @@ def build_zarr_image_url(image_id):
     http://localhost:4080/zarr/v0.4/image/99999.zarr
     """
     return SERVER + "/zarr/v0.4/image/" + str(image_id) + ".zarr"
+
+
+def build_attachement_url(obj_id):
+    """ Generates urls like:
+    http://localhost:4080/webclient/annotation/99999
+    """
+    return SERVER + "/webclient/annotation/" + str(obj_id)
 
 
 def get_attached_configs(obj_type, obj_id, conn):
@@ -144,6 +156,77 @@ def add_cell_identities(config_args, vc_dataset):
     return vc_dataset
 
 
+class VitessceShape():
+    """
+    Converts an OMERO ROI shape to a vitessce compatibel represetnation
+    https://github.com/will-moore/omero-vitessce/blob/master/omero_vitessce/views.py
+    """
+    def __init__(self, shape):
+        self.shape = self.toShapely(shape)
+        self.name = shape.getTextValue().getValue()
+
+    def toShapely(self, omero_shape):
+        encoder = get_encoder(omero_shape.__class__)
+        shape_json = encoder.encode(omero_shape)
+
+        if "Points" in shape_json:
+            xy = shape_json["Points"].split(" ")
+            coords = []
+            for coord in xy:
+                c = coord.split(",")
+                coords.append((float(c[0]), float(c[1])))
+            return Polygon(coords)
+
+    def poly(self):
+        # Use 2 to get e.g. 8 points from 56.
+        return list(self.shape.simplify(2).exterior.coords)
+
+
+def process_rois(img_ids, conn):
+    rois = []
+    for img_id in img_ids:
+        img = conn.getObject("Image", img_id)
+        rois += img.getROIs()
+    shapes = [VitessceShape(r.getShape(0)) for r in rois]
+    return shapes
+
+
+def make_cell_json(shapes):
+    cell_dict = {}
+    for s in shapes:
+        cell_dict[s.name] = s.poly()
+    return cell_dict
+
+
+def attach_cell_json(cell_dict, obj_type, obj_id, conn):
+    """
+    Writes a json file with the cell polygons from image ROIs
+    """
+    ts = datetime.datetime.now().strftime("%Y.%m.%d_%H%M%S")
+    filename = "CellsFromROIs-" + ts + ".json.rois"
+    json_path = create_path("omero-vitessce", ".tmp", folder=True)
+    filename = Path(filename).name  # Sanitize filename
+    json_path = Path(json_path).joinpath(filename)
+    with open(json_path, "w") as outfile:
+        json.dump(cell_dict, outfile, indent=4, sort_keys=False)
+    file_ann = conn.createFileAnnfromLocalFile(
+        json_path, mimetype="text/plain")
+    obj = conn.getObject(obj_type, obj_id)
+    obj.linkAnnotation(file_ann)
+    return file_ann.getId()
+
+
+def add_rois(img_ids, obj_type, obj_id, vc_dataset, conn):
+    shapes = process_rois(img_ids, conn)
+    cell_dict = make_cell_json(shapes)
+    cell_json_id = attach_cell_json(cell_dict, obj_type, obj_id, conn)
+    vc_dataset = vc_dataset.add_file(
+        url=build_attachement_url(cell_json_id),
+        file_type=Ft.OBS_SEGMENTATIONS_JSON,
+        coordination_values={"obsType": "cell"})
+    return vc_dataset
+
+
 def create_config(config_args, obj_type, obj_id, conn):
     """
     Generates a Vitessce config and returns it,
@@ -154,7 +237,7 @@ def create_config(config_args, obj_type, obj_id, conn):
     # plugin is loaded and the form is submitted then it will not be found
     # and will not be present in the cleaned_data -> None
 
-    file_names, file_urls, img_files, img_urls = get_files_images(
+    file_names, file_urls, img_files, img_urls, img_ids = get_files_images(
         obj_type, obj_id, conn)
     config_args = ConfigForm(data=config_args, file_names=file_names,
                              file_urls=file_urls, img_names=img_files,
@@ -212,6 +295,11 @@ def create_config(config_args, obj_type, obj_id, conn):
                 img_url=config_args.get("segmentation"),
                 name="Segmentation", is_bitmask=True)
         images.append(segmentation)
+    if config_args.get("rois"):
+        vc_dataset = add_rois(img_ids, obj_type, obj_id, vc_dataset, conn)
+        vc.link_views([sp, lc], ["spatialSegmentationLayer"],
+                      [{ "opacity": 1, "radius": 0,
+                         "visible": True, "stroked": False }])
     if config_args.get("molecules"):
         vc_dataset = add_molecules(config_args, vc_dataset)
         vc.link_views([sp, lc], c_types=[Ct.SPATIAL_POINT_LAYER],
@@ -225,10 +313,10 @@ def create_config(config_args, obj_type, obj_id, conn):
 
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
-    vc.add_coordination_by_dict({
+    scopes = vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
-        Ct.SPATIAL_TARGET_Y: 0
+        Ct.SPATIAL_TARGET_Y: 0,
     })
 
     displays = hconcat(*displays)
@@ -241,10 +329,20 @@ def create_config(config_args, obj_type, obj_id, conn):
         controllers = hconcat(controllers, hists)
     vc.layout(vconcat(displays, controllers))
 
-    return vc
+    vc_dict = vc.to_dict()
+
+    # OBS_SEGMENTATIONS_JSON does not work with raster.json
+    # https://github.com/vitessce/vitessce/discussions/1962 
+    if config_args.get("rois"):
+        for d in vc_dict["datasets"]:
+            for f in d["files"]:
+                if f["fileType"] == "raster.json":
+                    f["fileType"] = "image.raster.json"
+
+    return vc_dict
 
 
-def attach_config(vc, obj_type, obj_id, filename, conn):
+def attach_config(vc_dict, obj_type, obj_id, filename, conn):
     """
     Generates a Vitessce config for an OMERO image and returns it.
     Assumes the images is an OME NGFF v0.4 file
@@ -257,7 +355,7 @@ def attach_config(vc, obj_type, obj_id, filename, conn):
 
     config_path = Path(config_path).joinpath(filename)
     with open(config_path, "w") as outfile:
-        json.dump(vc.to_dict(), outfile, indent=4, sort_keys=False)
+        json.dump(vc_dict, outfile, indent=4, sort_keys=False)
 
     file_ann = conn.createFileAnnfromLocalFile(
         config_path, mimetype="text/plain")

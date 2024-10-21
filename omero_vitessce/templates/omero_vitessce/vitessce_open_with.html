@@ -183,6 +183,12 @@
 					</table>
 					<input type = "submit" value = "Generate Config"> 
 				</form>
+				<script>
+					function toggleDisable(divId) {
+						   const field_to_disable = document.getElementById(divId);
+						   field_to_disable.disabled = !field_to_disable.disabled;
+					}
+				</script>
 			{% else %}
 				<p style="font-size:medium%"> Autogenerating config files requires the 
 				<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>
