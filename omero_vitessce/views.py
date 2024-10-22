@@ -97,7 +97,7 @@ def vitessce_open(request, conn=None, **kwargs):
         context = {"json_configs": dict(),
                    "obj_type": obj_type, "obj_id": obj_id}
     if OMERO_WEB_ZARR:
-        files, urls, img_files, img_urls = get_files_images(
+        files, urls, img_files, img_urls, _ = get_files_images(
                 obj_type, obj_id, conn)
         form = ConfigForm(file_names=files, file_urls=urls,
                           img_names=img_files, img_urls=img_urls)
