@@ -161,10 +161,10 @@ class VitessceShape():
     https://github.com/will-moore/omero-vitessce/blob/master/omero_vitessce/views.py
     """
     def __init__(self, shape):
-        self.shape = self.toShapely(shape)
+        self.shape = self.to_shapely(shape)
         self.name = shape.getTextValue().getValue()
 
-    def toShapely(self, omero_shape):
+    def to_shapely(self, omero_shape):
         encoder = get_encoder(omero_shape.__class__)
         shape_json = encoder.encode(omero_shape)
 
