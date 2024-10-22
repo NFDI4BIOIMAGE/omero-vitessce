@@ -189,6 +189,8 @@ def process_rois(img_ids, conn):
     rois = []
     for img_id in img_ids:
         img = conn.getObject("Image", img_id)
+        if not img:
+            continue
         rois += img.getROIs()
     shapes = [VitessceShape(r.getShape(0)) for r in rois]
     return shapes
