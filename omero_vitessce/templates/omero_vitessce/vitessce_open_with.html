@@ -77,6 +77,12 @@
 						<th style="text-align:left;">{{ form.segmentation }}</th>
 					</tr>
 					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.rois.label_tag }}
+							<span class="tooltiptext">{{ form.rois.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.rois }}</th>
+					</tr>
+					<tr style="height:2vh">
 						<th><div class="tooltip">{{ form.cell_identities.label_tag }}
 							<span class="tooltiptext">{{ form.cell_identities.help_text }}</span>
 						</div></th>
@@ -184,7 +190,7 @@
 					<input type = "submit" value = "Generate Config"> 
 				</form>
 				<script>
-					function toggleDisable(divId) {
+					function toggleDisabled(divId) {
 						   const field_to_disable = document.getElementById(divId);
 						   field_to_disable.disabled = !field_to_disable.disabled;
 					}
