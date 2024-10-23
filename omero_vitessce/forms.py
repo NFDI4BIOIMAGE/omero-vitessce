@@ -85,7 +85,7 @@ class ConfigForm(forms.Form):
                 initial=False, required=False,
                 help_text=ConfigForm.rois_help)
         self.fields["rois"].widget.attrs = \
-            {'onclick': "javascript:toggleDisabled('id_segmentation');"}
+            {'onclick': "javascript:toggleDisabled('id_rois', 'id_segmentation', true);"}
 
         self.fields["cell_identities"] = forms.ChoiceField(
                 choices=self.text_choices, required=False,

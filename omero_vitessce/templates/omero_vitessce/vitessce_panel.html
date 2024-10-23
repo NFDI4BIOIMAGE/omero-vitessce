@@ -190,9 +190,15 @@
 					<input type = "submit" value = "Generate Config"> 
 				</form>
 				<script>
-					function toggleDisabled(divId) {
-						   const field_to_disable = document.getElementById(divId);
-						   field_to_disable.disabled = !field_to_disable.disabled;
+					function toggleDisabled(divId1, divId2, value) {
+						   const field_to_check = document.getElementById(divId1);
+						   const field_to_disable = document.getElementById(divId2);
+						   if (field_to_check.value === value || field_to_check.checked == value) {
+							   field_to_disable.disabled = true;
+						   }
+						   else {
+							   field_to_disable.disabled = false;
+						   }
 					}
 				</script>
 			{% else %}
