@@ -18,7 +18,7 @@ class TestLoadPage(IWebTest):
         # asserts we get a 200 response code etc
         rsp = get(django_client, index_url)
         html_str = rsp.content.decode()
-        assert "React App" in html_str
+        assert "OMERO-Vitessce" in html_str
 
     def test_load_openwith(self):
         """Test the openwith page."""
