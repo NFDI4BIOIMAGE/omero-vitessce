@@ -77,6 +77,12 @@
 						<th style="text-align:left;">{{ form.segmentation }}</th>
 					</tr>
 					<tr style="height:2vh">
+						<th><div class="tooltip">{{ form.rois.label_tag }}
+							<span class="tooltiptext">{{ form.rois.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.rois }}</th>
+					</tr>
+					<tr style="height:2vh">
 						<th><div class="tooltip">{{ form.cell_identities.label_tag }}
 							<span class="tooltiptext">{{ form.cell_identities.help_text }}</span>
 						</div></th>
@@ -183,6 +189,24 @@
 					</table>
 					<input type = "submit" value = "Generate Config"> 
 				</form>
+				<script>
+					function toggleDisabled(divId1, divId2, value) {
+						   const field_to_check = document.getElementById(divId1);
+						   const field_to_disable = document.getElementById(divId2);
+						   if (field_to_check.value === value || field_to_check.checked == value) {
+							   field_to_disable.disabled = true;
+						   }
+						   else {
+							   field_to_disable.disabled = false;
+						   }
+					}
+				</script>
+				<script>
+					// Ensure checkbox is unchecked when the page loads
+					window.onload = function() {
+					    document.getElementById('id_rois').checked = false;
+					};
+				</script>
 			{% else %}
 				<p style="font-size:medium%"> Autogenerating config files requires the 
 				<a  href=https://github.com/ome/omero-web-zarr target="_blank">omero-web-zarr</a>

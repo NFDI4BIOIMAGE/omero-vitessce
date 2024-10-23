@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 
 from omeroweb.webclient.decorators import login_required
 
 from .forms import ConfigForm
 from .utils import get_attached_configs, create_config, attach_config
 from .utils import get_files_images, build_viewer_url
+from .utils import process_rois, make_cell_json
 
 from omeroweb.settings import ADDITIONAL_APPS
 
@@ -36,7 +37,7 @@ def vitessce_panel(request, obj_type, obj_id, conn=None, **kwargs):
                "obj_type": obj_type, "obj_id": obj_id}
 
     if OMERO_WEB_ZARR:
-        files, urls, img_files, img_urls = get_files_images(
+        files, urls, img_files, img_urls, _ = get_files_images(
                 obj_type, obj_id, conn)
         form = ConfigForm(file_names=files, file_urls=urls,
                           img_names=img_files, img_urls=img_urls)
@@ -65,6 +66,17 @@ def generate_config(request, obj_type, obj_id, conn=None, **kwargs):
 
 
 @login_required()
+def vitessce_json_rois(request, img_ids, conn=None, **kwargs):
+    """Generate a json response with the polygon coordinates of the
+    vertices of the ROIs on the given images.
+    """
+    img_ids = [int(img_id) for img_id in img_ids.split(",")]
+    shapes = process_rois(img_ids, conn)
+    cell_dict = make_cell_json(shapes)
+    return JsonResponse(cell_dict)
+
+
+@login_required()
 def vitessce_open(request, conn=None, **kwargs):
     """Get the first .json attachement and generate a link for it
     This way the config files can be served as text
@@ -85,7 +97,7 @@ def vitessce_open(request, conn=None, **kwargs):
         context = {"json_configs": dict(),
                    "obj_type": obj_type, "obj_id": obj_id}
     if OMERO_WEB_ZARR:
-        files, urls, img_files, img_urls = get_files_images(
+        files, urls, img_files, img_urls, _ = get_files_images(
                 obj_type, obj_id, conn)
         form = ConfigForm(file_names=files, file_urls=urls,
                           img_names=img_files, img_urls=img_urls)

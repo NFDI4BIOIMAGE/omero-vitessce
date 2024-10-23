@@ -25,6 +25,7 @@ class ConfigForm(forms.Form):
     images_help = "OMERO Image(s) to view, assumes identical pixel size."
     segmentation_help = "Label image to overlay on the image, \
             pixel values should correspond to cell identities."
+    rois_help = "Use image ROIs as segmentation."
     cell_identities_help = ".csv file with at least 2 columns: \
             Cell id column and Label column defined in the 2 fields below."
     cell_id_help = "Name of the Cell id column used in \
@@ -78,6 +79,14 @@ class ConfigForm(forms.Form):
         self.fields["segmentation"] = forms.ChoiceField(
                 choices=self.image_choices, required=False,
                 help_text=ConfigForm.segmentation_help)
+        # Segmentation and rois are mutually exclusive,
+        # Setting rois to true disables the segmentation
+        self.fields["rois"] = forms.BooleanField(
+                initial=False, required=False,
+                help_text=ConfigForm.rois_help)
+        self.fields["rois"].widget.attrs = \
+            {"onclick":
+             "javascript:toggleDisabled('id_rois', 'id_segmentation', true);"}
 
         self.fields["cell_identities"] = forms.ChoiceField(
                 choices=self.text_choices, required=False,

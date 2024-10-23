@@ -3,8 +3,7 @@ import json
 import os
 import pytest
 
-from omeroweb.testlib import IWebTest  # , get
-# from django.urls import reverse
+from omeroweb.testlib import IWebTest
 from django.http.request import HttpRequest
 from django.http.request import QueryDict
 from omero.gateway import BlitzGateway
@@ -32,9 +31,11 @@ class TestConfig(IWebTest):
     def test_image_files(self, conn):
         """Checks the retrieval of images and .csv attachements"""
         i1_e = (set([]), set([]), set(["MB266-DAPI.tiff"]),
-                set(["http://localhost:4080/zarr/v0.4/image/1.zarr"]))
+                set(["http://localhost:4080/zarr/v0.4/image/1.zarr"]),
+                set([1]))
         i2_e = (set([]), set([]), set(["MB266-CELLS.png"]),
-                set(["http://localhost:4080/zarr/v0.4/image/2.zarr"]))
+                set(["http://localhost:4080/zarr/v0.4/image/2.zarr"]),
+                set([2]))
         d1_e = (set(["cells.csv", "embeddings.csv", "transcripts.csv",
                      "feature_matrix.csv"]),
                 set(["http://localhost:4080/webclient/annotation/1",
@@ -43,7 +44,8 @@ class TestConfig(IWebTest):
                      "http://localhost:4080/webclient/annotation/4"]),
                 set(["MB266-DAPI.tiff", "MB266-CELLS.png"]),
                 set(["http://localhost:4080/zarr/v0.4/image/1.zarr",
-                     "http://localhost:4080/zarr/v0.4/image/2.zarr"]))
+                     "http://localhost:4080/zarr/v0.4/image/2.zarr"]),
+                set([1, 2]))
 
         i1_o = tuple(set(i) for i in utils.get_files_images("image", 1, conn))
         i2_o = tuple(set(i) for i in utils.get_files_images("image", 2, conn))
@@ -129,5 +131,5 @@ class TestConfig(IWebTest):
                 "status=on&"
                 "description=on")
         config_data.POST = QueryDict(text)
-        vc = utils.create_config(config_data.POST, "dataset", 1, conn)
-        assert expected_json == vc.to_dict()
+        vc_dict = utils.create_config(config_data.POST, "dataset", 1, conn)
+        assert expected_json == vc_dict

@@ -1,1 +1,2 @@
 vitessce==3.3.0
+shapely==2.0.6
