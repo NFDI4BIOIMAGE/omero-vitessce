@@ -12,8 +12,12 @@ urlpatterns = [
             name="generate_config"),
 
     # json response with ROIs
-    re_path(r"vitessce_json_rois/(?P<img_ids>[0-9,]+)",
+    re_path(r"^vitessce_json_rois/(?P<img_ids>[0-9,]+)",
             views.vitessce_json_rois, name="vitessce_rois"),
+
+    # json response with Vitessce Config
+    re_path(r"^config/(?P<url_config>.+)",
+            views.vitessce_json_config, name="vitessce_config"),
 
     # Right panel plugin
     re_path(r"(?P<obj_type>[a-z]+)/(?P<obj_id>[0-9]+)",

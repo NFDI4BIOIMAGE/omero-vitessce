@@ -54,6 +54,12 @@
 							Vitessce viewer configuration</th>
 						<tr style="height:4vh">
 					</tr>
+					<tr>
+						<th><div class="tooltip">{{ form.config_save.label_tag }}
+							<span class="tooltiptext">{{ form.config_save.help_text }}</span>
+						</div></th>
+						<th style="text-align:left;">{{ form.config_save }}</th>
+					</tr>
 					<tr style="height:2vh">
 						<th><div class="tooltip">{{ form.config_file_name.label_tag }}
 							<span class="tooltiptext">{{ form.config_file_name.help_text }}</span>
@@ -205,9 +211,10 @@
 					}
 				</script>
 				<script>
-					// Ensure checkbox is unchecked when the page loads
+					// Ensure defaults are mantained for checkboxes
 					window.onload = function() {
 					    document.getElementById('id_rois').checked = false;
+					    document.getElementById('id_config_save').checked = true;
 					};
 				</script>
 			{% else %}

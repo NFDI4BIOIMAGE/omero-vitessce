@@ -3,7 +3,7 @@ import json
 import os
 import pytest
 
-from omeroweb.testlib import IWebTest
+from omeroweb.testlib import IWebTest, get_json
 from django.http.request import HttpRequest
 from django.http.request import QueryDict
 from omero.gateway import BlitzGateway
@@ -16,6 +16,37 @@ class TestConfig(IWebTest):
     USER_NAME = "test_user"
     USER_GROUP = "TestGroup"
     USER_PWD = "password"
+    CONFIG_TEXT = ("config_file_name=VitessceConfig.json&"
+                   "images="
+                   "http%3A%2F%2Flocalhost%3A4080%2F"
+                   "zarr%2Fv0.4%2Fimage%2F1.zarr&"
+                   "segmentation="
+                   "http%3A%2F%2Flocalhost%3A4080%2F"
+                   "zarr%2Fv0.4%2Fimage%2F2.zarr&"
+                   "cell_identities="
+                   "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
+                   "annotation%2F1&"
+                   "cell_id_column=cell_id&"
+                   "cell_label_column=label&"
+                   "expression="
+                   "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
+                   "annotation%2F4&"
+                   "embeddings="
+                   "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
+                   "annotation%2F2&"
+                   "embedding_x=UMAP_1&"
+                   "embedding_y=UMAP_2&"
+                   "molecules="
+                   "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
+                   "annotation%2F3&"
+                   "molecule_id=id&"
+                   "molecule_label=gene&"
+                   "molecule_x=x&"
+                   "molecule_y=y&"
+                   "histograms=on&"
+                   "heatmap=on&"
+                   "status=on&"
+                   "description=on")
 
     @pytest.fixture()
     def conn(self):
@@ -93,43 +124,32 @@ class TestConfig(IWebTest):
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
     def test_config_file(self, conn):
-        """Test loading the app home page."""
+        """Test the generation of a config file from the form"""
         json_path = os.path.join(os.environ["TARGET"],
                                  "test/data/MB266/VitessceConfig.json")
         with open(json_path) as jf:
             expected_json = json.load(jf)
         config_data = HttpRequest()
-        text = ("config_file_name=VitessceConfig.json&"
-                "images="
-                "http%3A%2F%2Flocalhost%3A4080%2F"
-                "zarr%2Fv0.4%2Fimage%2F1.zarr&"
-                "segmentation="
-                "http%3A%2F%2Flocalhost%3A4080%2F"
-                "zarr%2Fv0.4%2Fimage%2F2.zarr&"
-                "cell_identities="
-                "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
-                "annotation%2F1&"
-                "cell_id_column=cell_id&"
-                "cell_label_column=label&"
-                "expression="
-                "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
-                "annotation%2F4&"
-                "embeddings="
-                "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
-                "annotation%2F2&"
-                "embedding_x=UMAP_1&"
-                "embedding_y=UMAP_2&"
-                "molecules="
-                "http%3A%2F%2Flocalhost%3A4080%2Fwebclient%2F"
-                "annotation%2F3&"
-                "molecule_id=id&"
-                "molecule_label=gene&"
-                "molecule_x=x&"
-                "molecule_y=y&"
-                "histograms=on&"
-                "heatmap=on&"
-                "status=on&"
-                "description=on")
-        config_data.POST = QueryDict(text)
+        config_data.POST = QueryDict(TestConfig.CONFIG_TEXT)
         vc_dict = utils.create_config(config_data.POST, "dataset", 1, conn)
+        assert expected_json == vc_dict
+
+    def test_config_url(self, conn):
+        """Test the decoding and encoding of config files as urls"""
+        django_client = self.new_django_client(TestConfig.USER_NAME,
+                                               TestConfig.USER_PWD)
+
+        json_path = os.path.join(os.environ["TARGET"],
+                                 "test/data/MB266/VitessceConfig.json")
+        with open(json_path) as jf:
+            expected_json = json.load(jf)
+
+        config_data = HttpRequest()
+        config_data.POST = QueryDict(TestConfig.CONFIG_TEXT)
+        vc_dict = utils.create_config(config_data.POST, "dataset", 1, conn)
+        vc_url = utils.build_json_viewer_url(vc_dict)
+        vc_url = vc_url.replace(  # remove the viewer url to get the json url
+            "http://localhost:4080/omero_vitessce/?config=", "")
+        vc_dict = get_json(django_client, vc_url)
+
         assert expected_json == vc_dict
