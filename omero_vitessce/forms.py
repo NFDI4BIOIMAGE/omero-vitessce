@@ -19,7 +19,8 @@ class ConfigForm(forms.Form):
     default_molecule_y_col = "y"
 
     # Set help_text values for all fields
-
+    config_save_help = "Save the generated Vitessce viewer \
+            config as a .json file attachement."
     config_file_name_help = "Name of the config file to use, \
             a '.json' extension is added if missing."
     images_help = "OMERO Image(s) to view, assumes identical pixel size."
@@ -62,8 +63,16 @@ class ConfigForm(forms.Form):
                 file_names, file_urls, img_names, img_urls)
 
         # Configuration file fields
-        filename = self.make_config_file_name()
+        self.fields["config_save"] = forms.BooleanField(
+                initial=True, required=False,
+                help_text=ConfigForm.config_save_help)
+        self.fields["config_save"].widget.attrs = \
+            {"onclick":
+             "javascript:toggleDisabled('id_config_save', \
+                     'id_config_file_name', false);"}
+        self.fields["config_save"].label = "Save Config"
 
+        filename = self.make_config_file_name()
         self.fields["config_file_name"] = forms.CharField(
                 empty_value=filename, strip=True,
                 min_length=1, max_length=40, required=False,

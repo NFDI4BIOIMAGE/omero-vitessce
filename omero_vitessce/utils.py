@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+from urllib.parse import quote
+
 from shapely.geometry import Polygon
 from omero_marshal import get_encoder
 
@@ -46,7 +48,17 @@ def get_files_images(obj_type, obj_id, conn):
     return file_names, file_urls, img_names, img_urls, img_ids
 
 
-def build_viewer_url(config_id):
+def build_json_viewer_url(config_dict):
+    """ Generates urls like:
+    http://localhost:4080/omero_vitessce/?config=http://localhost:4080/omero_vitessce/config/URL_ENCODED_CONFIG
+    """
+    config_url = json.dumps(config_dict)
+    config_url = quote(config_url, safe="")
+    return SERVER + "/omero_vitessce/?config=" + SERVER + \
+        "/omero_vitessce/config/" + config_url
+
+
+def build_attachment_viewer_url(config_id):
     """ Generates urls like:
     http://localhost:4080/omero_vitessce/?config=http://localhost:4080/webclient/annotation/999
     """
@@ -71,7 +83,7 @@ def build_attachement_url(obj_id):
 def get_attached_configs(obj_type, obj_id, conn):
     """ Gets all the ".json" files attached to an object
     and returns a list of file names and a list of urls
-    generated with build_viewer_url
+    generated with build_attachment_viewer_url
     """
     obj = conn.getObject(obj_type, obj_id)
     config_files = [i for i in obj.listAnnotations()
@@ -81,14 +93,13 @@ def get_attached_configs(obj_type, obj_id, conn):
                    if i.getFileName().endswith(".json")]
     config_files = [i.getFileName() for i in config_files
                     if i.getFileName().endswith(".json")]
-    config_urls = [build_viewer_url(i) for i in config_urls]
+    config_urls = [build_attachment_viewer_url(i) for i in config_urls]
     return config_files, config_urls
 
 
 def get_details(obj_type, obj_id, conn):
-    """ Gets all the ".json" files attached to an object
-    and returns a list of file names and a list of urls
-    generated with build_viewer_url
+    """ Gets the description and name of an Object (Dataset|Image)
+    and returns them as a tuple.
     """
     obj = conn.getObject(obj_type, obj_id)
     name = obj.getName()
