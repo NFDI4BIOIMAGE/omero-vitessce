@@ -96,7 +96,7 @@ The following fields are available:
 - `Config file name`    (optional, "VitessceConfig-YYYY.MM.DD_HHMMSS.json"):   Name of the config file to attach, a ".json" extension is added if missing. 	
 - `Images`               (required): 	                                       OMERO Image(s) to view, assumes the same pixel size for all images.
 - `Segmentation`        (optional, `None`): 	                               Label image to overlay on the image, pixel values correspond to cell identities.
-- `ROIs`                (optional, `False`):                                   Use the ROIs from OMERO as a cell segmentation. Assumes 1 polygon shape per ROI, whose text value is the cell identity.
+- `ROIs`                (optional, `False`):                                   Use the ROIs from OMERO as a cell segmentation. Assumes 1 polygon/rectangle shape per ROI, whose text value is the cell identity.
 - `Cell identities`     (optional, `None`): 	                               `.csv` file with at least 2 columns: `Cell id column` and `Label column` defined in the 2 fields below. 
 - `Cell id column`      (optional, "cell_id"):   	                           Name of the `Cell id column` used in `Cell identities`, `Expression`, `Embeddings`.
 - `Label column`        (optional, "label"): 	                               Name of the `Label` used in `Cell identities`.
@@ -120,6 +120,9 @@ The `Expression` and `Cell identities` files are required to show the histograms
 The `Embeddings` file is necessary to show the cells in a scatterplot.  
 The `Molecules` file is used to overlay molecules on the image. All molecules are displayed and selecting by gene is not yet possible.  
 The `Status` panel will be empty unless a `Segmentation` or `Embeddings` are provided.  
+
+The `ROIs` are used as cells. Only the first shape is considered, and only polygons and rectangles are kept (TO DO: add support for ellipses). Other shapes are skipped.
+The text value of the shape is used as a cell identity to link with expression/labels/embeddings, if there is no text value the ROI is skipped.
 
 #### Attaching preexisting config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.

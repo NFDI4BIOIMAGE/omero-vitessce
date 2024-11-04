@@ -17,6 +17,10 @@ from vitessce import hconcat, vconcat
 # Get the address of omeroweb from the config
 SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
 
+# Valid ROI shapes for representing cells
+VALID_SHAPES = ["ome.model.roi.Polygon_roi",
+                "ome.model.roi.Rectangle_roi"]
+
 
 def get_files_images(obj_type, obj_id, conn):
     """ Gets all the non config files attached to an object,
@@ -168,28 +172,41 @@ def add_cell_identities(config_args, vc_dataset):
 
 class VitessceShape():
     """
-    Converts an OMERO ROI shape to a vitessce compatibel represetnation
+    Converts an OMERO ROI shape to a vitessce compatible representation
     https://github.com/will-moore/omero-vitessce/blob/master/omero_vitessce/views.py
     """
     def __init__(self, shape):
-        self.shape = self.to_shapely(shape)
+        self.type = shape.ROI
+        self.polygon = self.to_shapely(shape)
         self.name = shape.getTextValue().getValue()
 
     def to_shapely(self, omero_shape):
         encoder = get_encoder(omero_shape.__class__)
         shape_json = encoder.encode(omero_shape)
 
-        if "Points" in shape_json:
+        coords = []
+
+        if self.type == "ome.model.roi.Polygon_roi":
             xy = shape_json["Points"].split(" ")
-            coords = []
             for coord in xy:
                 c = coord.split(",")
                 coords.append((float(c[0]), float(c[1])))
-            return Polygon(coords)
+
+        elif self.type == "ome.model.roi.Rectangle_roi":
+            # X and Y are the top-left corner
+            x = omero_shape.getX().getValue()
+            y = omero_shape.getY().getValue()
+            w = omero_shape.getWidth().getValue()
+            h = omero_shape.getHeight().getValue()
+            coords.append((x, y))
+            coords.append((x + w, y))
+            coords.append((x + w, y + h))
+            coords.append((x, y + h))
+        return Polygon(coords)
 
     def poly(self):
         # Use 2 to get e.g. 8 points from 56.
-        return list(self.shape.simplify(2).exterior.coords)
+        return list(self.polygon.simplify(2).exterior.coords)
 
 
 def process_rois(img_ids, conn):
@@ -203,7 +220,12 @@ def process_rois(img_ids, conn):
         if not img:
             continue
         rois += img.getROIs()
-    shapes = [VitessceShape(r.getShape(0)) for r in rois]
+    shapes = [r.getShape(0) for r in rois]
+    # Exclude non closed shapes
+    shapes = filter(lambda x: x.ROI in VALID_SHAPES, shapes)
+    # Exclude shapes whithout a text value = No Cell ID
+    shapes = filter(lambda x: x.getTextValue() is not None, shapes)
+    shapes = [VitessceShape(s) for s in shapes]
     return shapes
 
 
