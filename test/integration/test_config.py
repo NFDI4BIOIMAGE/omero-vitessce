@@ -7,6 +7,7 @@ from omeroweb.testlib import IWebTest, get_json
 from django.http.request import HttpRequest
 from django.http.request import QueryDict
 from omero.gateway import BlitzGateway
+from omero import grid, model
 
 from omero_vitessce import utils
 
@@ -59,8 +60,33 @@ class TestConfig(IWebTest):
         conn = BlitzGateway(client_obj=client)
         return conn
 
-    def test_image_files(self, conn):
-        """Checks the retrieval of images and .csv attachements"""
+    @pytest.fixture()
+    def omero_table(self, conn):
+        """Attach a test OMERO.table to Dataset:1"""
+        col1 = grid.LongColumn('Uid', 'testLong', [1, 2, 3, 4, 5])
+        col2 = grid.StringColumn('MyStringColumnInit', '', 64,
+                                 ["a", "b", "c", "d", "e"])
+        resources = conn.c.sf.sharedResources()
+        repository_id = resources.repositories()\
+            .descriptions[0].getId().getValue()
+        table = resources.newTable(repository_id, "test_table")
+        table.initialize([col1, col2])
+        orig_file_id = table.getOriginalFile().id.val
+        table.close()
+        # Add the table as a file annotation
+        file_ann = model.FileAnnotationI()
+        # use unloaded OriginalFileI
+        file_ann.setFile(model.OriginalFileI(orig_file_id, False))
+        file_ann = conn.getUpdateService().saveAndReturnObject(file_ann)
+        link = model.DatasetAnnotationLinkI()
+        link.setParent(model.DatasetI(1, False))
+        link.setChild(model.FileAnnotationI(file_ann.getId().getValue(),
+                                            False))
+        conn.getUpdateService().saveAndReturnObject(link)
+        return orig_file_id
+
+    def test_image_files(self, conn, omero_table):
+        """Checks the retrieval of images, tables and .csv attachements"""
         i1_e = (set([]), set([]), set(["MB266-DAPI.tiff"]),
                 set(["http://localhost:4080/zarr/v0.4/image/1.zarr"]),
                 set([1]))
@@ -68,11 +94,13 @@ class TestConfig(IWebTest):
                 set(["http://localhost:4080/zarr/v0.4/image/2.zarr"]),
                 set([2]))
         d1_e = (set(["cells.csv", "embeddings.csv", "transcripts.csv",
-                     "feature_matrix.csv"]),
+                     "feature_matrix.csv", "test_table"]),
                 set(["http://localhost:4080/webclient/annotation/1",
                      "http://localhost:4080/webclient/annotation/2",
                      "http://localhost:4080/webclient/annotation/3",
-                     "http://localhost:4080/webclient/annotation/4"]),
+                     "http://localhost:4080/webclient/annotation/4",
+                     "http://localhost:4080/webclient/omero_table/"
+                     + str(omero_table) + "/csv/"]),
                 set(["MB266-DAPI.tiff", "MB266-CELLS.png"]),
                 set(["http://localhost:4080/zarr/v0.4/image/1.zarr",
                      "http://localhost:4080/zarr/v0.4/image/2.zarr"]),
