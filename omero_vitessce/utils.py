@@ -33,11 +33,20 @@ def get_files_images(obj_type, obj_id, conn):
             i for i in obj.listAnnotations()
             if i.OMERO_TYPE().NAME ==
             "ome.model.annotations.FileAnnotation_name"]
-    file_names = [i for i in file_names
-                  if i.getFileName().endswith(".csv")]
-    file_urls = [i.getId() for i in file_names]
+    # get csv file names and urls
+    csv_file_names = [i for i in file_names
+                      if i.getFileName().endswith(".csv")]
+    csv_file_urls = [i.getId() for i in csv_file_names]
+    csv_file_urls = [build_attachement_url(i) for i in csv_file_urls]
+    # get table file names and urls
+    tbl_file_names = [i for i in file_names if i not in csv_file_names
+                      and i.getFile().getMimetype() == "OMERO.tables"]
+    tbl_file_urls = [i.getFile().getId() for i in tbl_file_names]
+    tbl_file_urls = [build_table_url(i) for i in tbl_file_urls]
+    # put everything togheter
+    file_names = csv_file_names + tbl_file_names
     file_names = [i.getFileName() for i in file_names]
-    file_urls = [build_attachement_url(i) for i in file_urls]
+    file_urls = csv_file_urls + tbl_file_urls
 
     if obj_type == "dataset":
         imgs = list(obj.listChildren())
@@ -80,8 +89,19 @@ def build_zarr_image_url(image_id):
 def build_attachement_url(obj_id):
     """ Generates urls like:
     http://localhost:4080/webclient/annotation/99999
+    Used for .csv attachements, takes the annotation ID
     """
     return SERVER + "/webclient/annotation/" + str(obj_id)
+
+
+def build_table_url(obj_id):
+    """ Generates urls like:
+    http://localhost:4080/webclient/omero_table/99999/csv
+    Used for OMERO.table attachements, takes the file ID.
+    The table is served as a csv file with header
+    Uses the default values for of offset (0) and limit (None)
+    """
+    return SERVER + "/webclient/omero_table/" + str(obj_id) + "/csv/"
 
 
 def get_attached_configs(obj_type, obj_id, conn):
