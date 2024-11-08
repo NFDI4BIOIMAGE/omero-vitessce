@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -20,6 +21,8 @@ SERVER = omero_vitessce_settings.SERVER_ADDRESS[1:-1]
 # Valid ROI shapes for representing cells
 VALID_SHAPES = ["ome.model.roi.Polygon_roi",
                 "ome.model.roi.Rectangle_roi"]
+# Used to remove non-safe URL characters
+URL_SAFE_REGEX = re.compile(r"[^A-Za-z0-9-_\. ]")
 
 
 def get_files_images(obj_type, obj_id, conn):
@@ -128,13 +131,19 @@ def get_attached_configs(obj_type, obj_id, conn):
 
 def get_details(obj_type, obj_id, conn):
     """ Gets the description and name of an Object (Dataset|Image)
-    and returns them as a tuple.
+    remome non-url safe characters and returns them as a tuple.
     """
     obj = conn.getObject(obj_type, obj_id)
     name = obj.getName()
     description = obj.getDescription()
+    # Defaults
+    if not name:
+        name = obj_type + "-" + str(obj_id)
     if not description:
         description = "Generated with omero-vitessce"
+    # Remove non-safe characters for URLs
+    name = URL_SAFE_REGEX.sub("", name)
+    description = URL_SAFE_REGEX.sub("", description)
     return description, name
 
 
