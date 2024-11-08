@@ -23,10 +23,11 @@ VALID_SHAPES = ["ome.model.roi.Polygon_roi",
 
 
 def get_files_images(obj_type, obj_id, conn):
-    """ Gets all the non config files attached to an object,
-    and images if the object is a dataset,
-    and returns a list of file names and a list of urls
-    for the files and eventually the images, plus the image ids.
+    """ Gets all the attachements to an object and keeps
+    only .csv files and OMERO.tables, returns a list of file names and urls.
+    If the object is a dataset it also lists all its images, and their
+    omero-web-zarr urls, and ids. If the object is an image
+    it returns its name, omero-web-zarr url and id.
     """
     obj = conn.getObject(obj_type, obj_id)
     file_names = [
@@ -48,15 +49,19 @@ def get_files_images(obj_type, obj_id, conn):
     file_names = [i.getFileName() for i in file_names]
     file_urls = csv_file_urls + tbl_file_urls
 
+    # Get the images, their urls and ids
     if obj_type == "dataset":
         imgs = list(obj.listChildren())
         img_ids = [i.getId() for i in imgs]
         img_urls = [build_zarr_image_url(i) for i in img_ids]
         img_names = [i.getName() for i in imgs]
-    else:
+    elif obj_type == "image":
         img_urls = [build_zarr_image_url(obj_id)]
         img_names = [obj.getName()]
         img_ids = [obj_id]
+    else:
+        raise ValueError(
+                f"Got {obj_type}, but only images / datasets are supported")
 
     return file_names, file_urls, img_names, img_urls, img_ids
 
@@ -96,7 +101,7 @@ def build_attachement_url(obj_id):
 
 def build_table_url(obj_id):
     """ Generates urls like:
-    http://localhost:4080/webclient/omero_table/99999/csv
+    http://localhost:4080/webclient/omero_table/99999/csv/
     Used for OMERO.table attachements, takes the file ID.
     The table is served as a csv file with header
     Uses the default values for of offset (0) and limit (None)
@@ -292,10 +297,12 @@ def create_config(config_args, obj_type, obj_id, conn):
     config_args = config_args.cleaned_data
     description, name = get_details(obj_type, obj_id, conn)
 
+    # Initialize the config
     vc = VitessceConfig(schema_version="1.0.16",
                         name=name, description=description)
     vc_dataset = vc.add_dataset()
 
+    # Collects the images
     images = []
     img_urls = config_args.get("images")
     for n, img_url in enumerate(img_urls):
@@ -357,14 +364,17 @@ def create_config(config_args, obj_type, obj_id, conn):
         st = vc.add_view(Vt.STATUS, dataset=vc_dataset)
         texts.append(st)
 
+    # Add the images + segmentation
     vc_dataset.add_object(MultiImageWrapper(image_wrappers=images,
                                             use_physical_size_scaling=True))
+    # Add the coordination space
     vc.add_coordination_by_dict({
         Ct.SPATIAL_ZOOM: 2,
         Ct.SPATIAL_TARGET_X: 0,
         Ct.SPATIAL_TARGET_Y: 0,
     })
 
+    # Prepare the layout
     displays = hconcat(*displays)
     controllers = hconcat(*controllers)
     if texts:
@@ -390,9 +400,7 @@ def create_config(config_args, obj_type, obj_id, conn):
 
 def attach_config(vc_dict, obj_type, obj_id, filename, conn):
     """
-    Generates a Vitessce config for an OMERO image and returns it.
-    Assumes the images is an OME NGFF v0.4 file
-    which can be served with omero-web-zarr.
+    Saves the vitessce config dict as a json file and attaches it to an object
     """
     config_path = create_path("omero-vitessce", ".tmp", folder=True)
     if not filename.endswith(".json"):
