@@ -4,6 +4,7 @@ import os
 import pytest
 
 from omeroweb.testlib import IWebTest, get_json
+from omeroweb.settings import MAX_TABLE_DOWNLOAD_ROWS
 from django.http.request import HttpRequest
 from django.http.request import QueryDict
 from omero.gateway import BlitzGateway
@@ -100,7 +101,8 @@ class TestConfig(IWebTest):
                      "http://localhost:4080/webclient/annotation/3",
                      "http://localhost:4080/webclient/annotation/4",
                      "http://localhost:4080/webclient/omero_table/"
-                     + str(omero_table) + "/csv/"]),
+                     + str(omero_table) + "/csv?limit="
+                     + str(MAX_TABLE_DOWNLOAD_ROWS)]),
                 set(["MB266-DAPI.tiff", "MB266-CELLS.png"]),
                 set(["http://localhost:4080/zarr/v0.4/image/1.zarr",
                      "http://localhost:4080/zarr/v0.4/image/2.zarr"]),
