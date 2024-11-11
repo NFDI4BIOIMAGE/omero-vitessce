@@ -128,7 +128,9 @@ OMERO.tables for use with omero-vitessce can be generated with:
 - OMERO python API (https://omero.readthedocs.io/en/stable/developers/Tables.html) or ezomero (https://thejacksonlaboratory.github.io/ezomero/ezomero.html#ezomero.post_table)
 - Fiji (https://wiki-biop.epfl.ch/en/data-management/omero/omero-tables#create-omerotables-from-a-fiji-script)
 - QuPath (https://wiki-biop.epfl.ch/en/data-management/omero/qupath#annotations-measurement-tables)
-- other [tools](https://omero-guides.readthedocs.io/en/latest/external_tools.html) / [APIs](https://omero-guides.readthedocs.io/en/latest/api_usage.html): 
+- other [tools](https://omero-guides.readthedocs.io/en/latest/external_tools.html) / [APIs](https://omero-guides.readthedocs.io/en/latest/api_usage.html):
+
+OMERO.tables with a number of rows > `omero.web.max_table_download_rows` (default `10000`) will be truncated, and the value ignored by omero-vitessce.
 
 #### Attaching preexisting config files
 Custom config files should have a `.json` extension and added as attachements to a dataset or an image.
@@ -143,7 +145,7 @@ Images and data can be served through:
 - [omero-web-zarr](https://pypi.org/project/omero-web-zarr/):  OME-NGFF images only.
 - [omero-openlink](https://github.com/sukunis/OMERO.openlink): all images and file attachements.
 - `webclient/annotation/` endpoint: only for Annotations (useful for file attachments).
-- `webclient/omero_table/ID/csv/` endpoint (ID = OMERO file ID of the OMERO.table): for getting OMERO.tables as `csv` files.
+- `webclient/omero_table/ID/csv?limit=MAX_TABLE_DOWNLOAD_ROWS` endpoint (`ID` = OMERO file ID of the OMERO.table, `MAX_TABLE_DOWNLOAD_ROWS` = the OMERO.web setting): for getting OMERO.tables as `csv` files.
 - `omero_vitessce/vitessce_json_rois/ID1,ID2,...` endpoint where `ID1,ID2,...` is a comma-separated list of image ids, to get the first shape of each ROI in `json` format.
 
 Example showing ROIs from OMERO displayed in the omero-vitessce viewer window:
