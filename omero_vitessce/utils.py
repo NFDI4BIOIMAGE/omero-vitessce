@@ -309,9 +309,9 @@ def create_config(config_args, obj_type, obj_id, conn):
 
     # Collects the images
     images = []
-    img_urls = config_args.get("images")
-    for n, img_url in enumerate(img_urls):
-        images.append(OmeZarrWrapper(img_url=img_url, name=f"Image {n}"))
+    for img_url in config_args.get("images"):
+        img_file = img_files[img_urls.index(img_url)]
+        images.append(OmeZarrWrapper(img_url=img_url, name=img_file))
 
     sp = vc.add_view(Vt.SPATIAL, dataset=vc_dataset)
     lc = vc.add_view(Vt.LAYER_CONTROLLER, dataset=vc_dataset)
@@ -349,9 +349,11 @@ def create_config(config_args, obj_type, obj_id, conn):
             hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
             displays.append(hm)
     if config_args.get("segmentation"):
+        seg_url = config_args.get("segmentation")
+        seg_name = img_files[img_urls.index(seg_url)]
         segmentation = OmeZarrWrapper(
-                img_url=config_args.get("segmentation"),
-                name="Segmentation", is_bitmask=True)
+                img_url=seg_url, name=seg_name,
+                is_bitmask=True)
         images.append(segmentation)
     if config_args.get("rois"):
         vc_dataset = add_rois(img_ids, vc_dataset, conn)

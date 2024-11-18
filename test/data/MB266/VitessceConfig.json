@@ -74,12 +74,12 @@
                         "usePhysicalSizeScaling": true,
                         "images": [
                             {
-                                "name": "Image 0",
+                                "name": "MB266-DAPI.tiff",
                                 "type": "ome-zarr",
                                 "url": "http://localhost:4080/zarr/v0.4/image/1.zarr"
                             },
                             {
-                                "name": "Segmentation",
+                                "name": "MB266-CELLS.png",
                                 "type": "ome-zarr",
                                 "url": "http://localhost:4080/zarr/v0.4/image/2.zarr",
                                 "metadata": {
@@ -88,8 +88,8 @@
                             }
                         ],
                         "renderLayers": [
-                            "Image 0",
-                            "Segmentation"
+                            "MB266-DAPI.tiff",
+                            "MB266-CELLS.png"
                         ]
                     }
                 }
