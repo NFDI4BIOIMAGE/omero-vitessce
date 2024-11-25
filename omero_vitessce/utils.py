@@ -325,6 +325,9 @@ def create_config(config_args, obj_type, obj_id, conn):
         vc_dataset = add_cell_identities(config_args, vc_dataset)
         os = vc.add_view(Vt.OBS_SETS, dataset=vc_dataset)
         controllers.append(os)
+        if config_args.get("histograms"):
+            oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
+            hists.append(oh)
     if config_args.get("expression"):
         vc_dataset = vc_dataset.add_file(
             url=config_args.get("expression"),
@@ -341,10 +344,9 @@ def create_config(config_args, obj_type, obj_id, conn):
     if config_args.get("expression") and config_args.get("cell_identities"):
         if config_args.get("histograms"):
             fh = vc.add_view(Vt.FEATURE_VALUE_HISTOGRAM, dataset=vc_dataset)
-            oh = vc.add_view(Vt.OBS_SET_SIZES, dataset=vc_dataset)
             fd = vc.add_view(Vt.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
                              dataset=vc_dataset)
-            hists.extend([fh, oh, fd])
+            hists.extend([fh, fd])
         if config_args.get("heatmap"):
             hm = vc.add_view(Vt.HEATMAP, dataset=vc_dataset)
             displays.append(hm)

@@ -154,6 +154,16 @@
             "h": 6.0
         },
         {
+            "component": "obsSetSizes",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 6.0,
+            "y": 6.0,
+            "w": 2.0,
+            "h": 6.0
+        },
+        {
             "component": "featureList",
             "coordinationScopes": {
                 "dataset": "A"
@@ -176,16 +186,6 @@
         },
         {
             "component": "featureValueHistogram",
-            "coordinationScopes": {
-                "dataset": "A"
-            },
-            "x": 6.0,
-            "y": 6.0,
-            "w": 2.0,
-            "h": 6.0
-        },
-        {
-            "component": "obsSetSizes",
             "coordinationScopes": {
                 "dataset": "A"
             },
