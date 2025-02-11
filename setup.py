@@ -10,9 +10,9 @@ setup(
     author_email='michele.bortolomeazzi@dfkf.de',
     license='AGPLv3',
     url="https://github.com/MicheleBortol/omero-vitessce",
-    python_requires='>=3.9',
+    python_requires='>=3.10',
     packages=find_packages(),
-    install_requires=["vitessce>=3.4.3", "shapely==2.0.7"],
+    install_requires=["vitessce>=3.5.1", "shapely==2.0.7"],
     keywords=["OMERO.web", "OMERO", "Vitessce", "viewer"],
     include_package_data=True,
 )
