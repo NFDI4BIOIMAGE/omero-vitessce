@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkomero_vitessce=self.webpackChunkomero_vitessce||[]).push([[871],{871:(e,s,r)=>{r.r(s),r.d(s,{default:()=>a});var c=r(889),t=r(870);class a extends t.aP{decodeBlock(e){return(0,c.i)(new Uint8Array(e)).buffer}}}}]);
+//# sourceMappingURL=871.5e39768e.chunk.js.map
